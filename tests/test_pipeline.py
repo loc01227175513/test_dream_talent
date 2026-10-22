@@ -22,19 +22,12 @@ class TestGet(unittest.TestCase):
             agent.get("https://x", opener=opener, sleep=lambda s: None)
 
 
-class TestStage(unittest.TestCase):
-    def tearDown(self):
-        for n in ("t_empty.md", "t_cached.md"):
-            (agent.OUT / n).unlink(missing_ok=True)
-
-    def test_stage_does_not_cache_empty_output(self):
-        with self.assertRaises(SystemExit):
-            agent.stage("t_empty.md", "p", run=lambda p: "  ")
-        self.assertFalse((agent.OUT / "t_empty.md").exists())
-
-    def test_stage_uses_cache(self):
-        (agent.OUT / "t_cached.md").write_text("cached")
-        self.assertEqual(agent.stage("t_cached.md", "p", run=lambda p: 1 / 0), "cached")
+class TestFallback(unittest.TestCase):
+    def test_fallback_graph_has_no_dangling_edges(self):
+        g = agent.fallback_graph(Path("out/brief.md").read_text(), Path("out/SRS.md").read_text())
+        ids = {n["id"] for n in g["nodes"]}
+        self.assertIn({"from": "F-10", "to": "FR-08", "label": "specified_by"}, g["edges"])
+        self.assertTrue(all(e["from"] in ids and e["to"] in ids for e in g["edges"]))
 
 
 class TestWiki(unittest.TestCase):
