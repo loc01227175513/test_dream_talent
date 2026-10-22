@@ -24,7 +24,7 @@ class TestGet(unittest.TestCase):
 
 class TestFallback(unittest.TestCase):
     def test_fallback_graph_has_no_dangling_edges(self):
-        g = agent.fallback_graph(Path("out/brief.md").read_text(), Path("out/SRS.md").read_text())
+        g = agent.fallback_graph(Path("out/v1/brief.md").read_text(), Path("out/v1/SRS.md").read_text())
         ids = {n["id"] for n in g["nodes"]}
         self.assertIn({"from": "F-10", "to": "FR-08", "label": "specified_by"}, g["edges"])
         self.assertTrue(all(e["from"] in ids and e["to"] in ids for e in g["edges"]))
@@ -34,7 +34,7 @@ class TestWiki(unittest.TestCase):
     def test_build_wiki_links_feature_to_requirement(self):
         import wiki
         d = Path(tempfile.mkdtemp())
-        wiki.build_wiki(Path("out/brief.md").read_text(), Path("out/SRS.md").read_text(), d)
+        wiki.build_wiki(Path("out/v1/brief.md").read_text(), Path("out/v1/SRS.md").read_text(), d)
         self.assertIn("[[FR-08]]", (d / "F-10.md").read_text())
         self.assertIn("[[F-10]]", (d / "M2.md").read_text())
         self.assertIn("[[M2]]", (d / "index.md").read_text())
@@ -56,7 +56,7 @@ class TestValidate(unittest.TestCase):
 
     def test_check_srs_ok_on_current_outputs(self):
         import validate
-        self.assertEqual(validate.check_srs(Path("out/SRS.md").read_text(), Path("out/brief.md").read_text()), [])
+        self.assertEqual(validate.check_srs(Path("out/v1/SRS.md").read_text(), Path("out/v1/brief.md").read_text()), [])
 
 
 if __name__ == "__main__":
