@@ -37,5 +37,22 @@ class TestStage(unittest.TestCase):
         self.assertEqual(agent.stage("t_cached.md", "p", run=lambda p: 1 / 0), "cached")
 
 
+class TestWiki(unittest.TestCase):
+    def test_build_wiki_links_feature_to_requirement(self):
+        import wiki
+        d = Path(tempfile.mkdtemp())
+        wiki.build_wiki(Path("out/brief.md").read_text(), Path("out/SRS.md").read_text(), d)
+        self.assertIn("[[FR-08]]", (d / "F-10.md").read_text())
+        self.assertIn("[[F-10]]", (d / "M2.md").read_text())
+        self.assertIn("[[M2]]", (d / "index.md").read_text())
+        self.assertEqual(wiki.broken_links(d), [])
+
+    def test_broken_links_detects_missing_page(self):
+        import wiki
+        d = Path(tempfile.mkdtemp())
+        (d / "index.md").write_text("[[F-99]]")
+        self.assertEqual(wiki.broken_links(d), ["index.md -> F-99"])
+
+
 if __name__ == "__main__":
     unittest.main()
