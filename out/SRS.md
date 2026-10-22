@@ -1,348 +1,688 @@
-# Software Requirements Specification — MOSO.vn
-**Phiên bản:** 1.0 (reverse-engineered) · **Ngày:** 22/10/2026 · **Phương pháp:** BMAD (Analyst → PM → Architect) + Understand-Anything knowledge graph · **Đầu vào:** [brief.md](brief.md)
+# Software Requirements Specification — MOSO.VN
 
----
+> Theo IEEE 830. Nguồn: `out/brief.md` (Analyst) → PRD `out/bmad/planning-artifacts/prds/prd-test-2026-10-22/prd.md` (PM, headless/fast path). Mọi suy luận không có trong brief được gắn **[ASSUMPTION]**. Mã F-xx, A-x, C-xx, Q-xx là mã của brief.
 
 ## 1. Giới thiệu
+
 ### 1.1 Mục đích
-Tài liệu đặc tả yêu cầu phần mềm cho nền tảng AI Proptech MOSO.vn, được dựng ngược từ hệ thống đang vận hành, dùng làm baseline cho giai đoạn Planning (ước lượng, roadmap, kiểm thử chấp nhận).
+Đặc tả yêu cầu phần mềm cho nền tảng PropTech BĐS MOSO.VN (web, app iOS/Android, API/MCP cho AI agent). Tài liệu là đầu vào cho các bước kiến trúc, UX, tách epic/story và kiểm thử.
 
 ### 1.2 Phạm vi
-MOSO là sàn giao dịch BĐS trực tuyến (web Next.js + app iOS/Android) cho mua bán, cho thuê, dự án, môi giới, vay mua nhà và dữ liệu thị trường, vận hành theo nguyên tắc **"3 THẬT": Nhà Thật – Giá Thật – Địa Chỉ Thật**. Ngoài phạm vi: core banking của ngân hàng đối tác, hệ thống thi chứng chỉ của IEM, nền tảng e-voucher Urbox/Gotit.
+Sàn giao dịch BĐS theo chuẩn "3 THẬT" (Nhà Thật, Giá Thật, Địa Chỉ Thật), gồm: tìm kiếm & khám phá, liên hệ & lịch xem, đăng tin bằng AI, xác thực & bảo vệ tin, MOSO Points, hệ sinh thái môi giới/đối tác, vay thế chấp, công cụ pháp lý–thuế–đầu tư, dữ liệu thị trường, tài khoản/app và lớp API/MCP cho agent. Ngoài phạm vi: UI backoffice chi tiết, cổng thanh toán cụ thể, AVM thực sự, Check quy hoạch (Won't).
 
 ### 1.3 Thuật ngữ
-| Thuật ngữ | Định nghĩa |
+| Thuật ngữ | Nghĩa |
 |---|---|
-| MP / MOSO Points | Đơn vị thanh toán nội bộ, 1 MP = 1.000đ (đã gồm VAT) |
-| Tin xác thực | Tin đã kiểm tra ảnh, pháp lý, chính chủ |
-| Ẩn số nhà | Tính năng che số nhà/địa chỉ chi tiết với người xem chưa đủ điều kiện |
-| Đẩy tin | Gói ưu tiên hiển thị có thời hạn |
-| MOSO Score | Điểm xếp hạng môi giới trong danh bạ |
-| MOSO Signature | Giỏ hàng BĐS đấu giá / phát mãi |
-| DTI | Debt-to-Income: tỷ lệ nợ trên thu nhập |
-| AVM | Automated Valuation Model |
-| FSBO | For Sale By Owner — chủ nhà tự bán |
-| MCP | Model Context Protocol — giao thức cho AI agent |
+| 3 THẬT | Nhà Thật · Giá Thật · Địa Chỉ Thật |
+| ARV | Accurate · Real · Verified — chuẩn dữ liệu tin đăng |
+| MP / point | MOSO Point, 1 point = 1.000đ (đã gồm VAT) |
+| Ẩn số nhà | Ẩn địa chỉ chi tiết, chỉ hiện cho khách có nhu cầu thật đã xác thực |
+| MOSO Score | Điểm xếp hạng môi giới theo 6 yếu tố |
+| Partner | Đối tác MOSO (cá nhân/doanh nghiệp) |
+| CTV | Cộng tác viên giới thiệu |
+| MCP | Model Context Protocol, giao thức tool cho AI agent |
+| Lead | Yêu cầu xem nhà/tư vấn ở trạng thái chờ xử lý |
+| DTI | Tỷ lệ nợ trên thu nhập |
 
 ### 1.4 Tài liệu tham chiếu
-llms.txt, /.well-known/mcp.json, /bang-gia-dang-tin, /chinh-sach-moso-points, /chinh-sach-bao-mat, Luật Đất đai 2024, Luật Nhà ở 2023, Luật KD BĐS, NĐ 103/2024/NĐ-CP, NĐ 13/2023/NĐ-CP (bảo vệ dữ liệu cá nhân).
-
----
+- `out/brief.md` — Product Brief MOSO.VN (22/10/2026).
+- PRD — `out/bmad/planning-artifacts/prds/prd-test-2026-10-22/prd.md`.
+- Luật Đất đai 2024, Luật Nhà ở 2023, Luật KD BĐS 2023, NĐ 103/2024, NĐ 10/2022, TT 85/2019 (C-10).
+- IEEE Std 830-1998.
 
 ## 2. Mô tả tổng quan
+
 ### 2.1 Bối cảnh sản phẩm
-```
- Người mua/thuê ─┐                       ┌─ Ngân hàng đối tác (13+)
- Chủ nhà ────────┤                       ├─ IEM (đào tạo chứng chỉ)
- Môi giới ───────┼──► MOSO Web / App ◄──►├─ Urbox / Gotit (e-voucher)
- Doanh nghiệp ───┤      │                ├─ Cổng thanh toán (giả định)
- CTV ────────────┘      │                └─ SMS OTP (giả định)
- AI Agent ───► MCP / Agent API / Markdown
-```
+MOSO.VN thuộc Công ty TNHH Công nghệ BĐS MOSO (mẹ: Loan Factory), trọng tâm TP.HCM, mở rộng ra Bình Dương, Đồng Nai, Long An, Hà Nội, Đà Nẵng. Quy mô tự công bố: 25.088 tin bán · 26.193 tin cho thuê · 4.791 dự án (số liệu chưa thống nhất, xem Q-02). Hệ thống gồm 11 module (M1–M11) và tương tác với ngân hàng đối tác, IEM, Urbox/Gotit, Cục Thi hành án, App Store/Google Play.
 
-### 2.2 Lớp người dùng
-| Actor | Mô tả | Quyền |
+### 2.2 Chức năng chính
+Tìm kiếm có xác thực; liên hệ và đặt lịch xem; đăng tin bằng AI; xác thực ARV và Ẩn số nhà; ví points; mạng lưới môi giới/Partner/CTV; vay thế chấp; công cụ tính toán; báo cáo thị trường; API/MCP mở.
+
+### 2.3 Lớp người dùng
+| ID | Actor | Đặc điểm |
 |---|---|---|
-| A1 Khách (Guest) | Chưa đăng nhập | Tìm, xem, dùng công cụ, gửi yêu cầu xem nhà |
-| A1' Người dùng | Đã đăng nhập bằng SĐT | + lưu, nhắn tin, chơi game, nhận points |
-| A2 Chủ nhà | Người dùng đăng tin | + đăng/quản lý tin, nạp points |
-| A3 Môi giới | Tài khoản môi giới | + hồ sơ danh bạ, nhận ký gửi, Partner |
-| A4 Doanh nghiệp | Sàn/công ty BĐS | + website, quản trị đội ngũ, đồng bộ tin |
-| A5 CTV | Bất kỳ ai | Gửi nguồn nhà/khách, nhận e-voucher |
-| A6 AI Agent | Client máy | Đọc dữ liệu công khai, 1 thao tác ghi (contact) |
-| A7 Admin/Chuyên viên | Nội bộ | Xác thực tin, duyệt môi giới, xử lý lead, phản ánh |
+| A1 | Người mua / người thuê | Khách vãng lai hoặc tài khoản thường |
+| A2 | Chủ nhà (FSBO) | Đăng tin không qua môi giới, cần đăng nhập |
+| A3 | Môi giới cá nhân | Tài khoản SĐT + OTP, có thể là Partner |
+| A4 | Doanh nghiệp / Sàn / CĐT | Partner doanh nghiệp |
+| A5 | Cộng tác viên | Không cần chứng chỉ |
+| A6 | Nhà đầu tư | Quan tâm ROI, BĐS đấu giá |
+| A7 | AI agent bên thứ ba | Client máy qua MCP/API |
+| A8 | Chuyên viên / Admin MOSO | Nội bộ, có backoffice [ASSUMPTION] |
+| A10 | Hệ thống ngoài | Ngân hàng, IEM, e-voucher, THA, app store |
 
-### 2.3 Ràng buộc
-- C-01: Tuân thủ quy định sàn TMĐT (đã thông báo Bộ Công Thương), phải có quy chế hoạt động, cơ chế giải quyết tranh chấp.
-- C-02: Dữ liệu cá nhân theo NĐ 13/2023; người dùng có quyền xoá tài khoản.
-- C-03: Địa giới hành chính phải hỗ trợ cả tên trước và sau sáp nhập 2025.
-- C-04: Mọi kết quả công cụ tài chính/pháp lý phải gắn nhãn "tham khảo", không phải khuyến nghị đầu tư.
-- C-05: Tiếng Việt là ngôn ngữ chính, tiếng Anh phụ.
+### 2.4 Ràng buộc
+C-01…C-13 của brief áp dụng toàn bộ. Quan trọng nhất: chu kỳ tin 30 ngày (C-01); point gồm VAT (C-02); rate limit API (C-05); quy tắc API contact (C-06); location/giá tổng căn (C-07); sáp nhập hành chính 2025 (C-08); công cụ chỉ để tham khảo (C-09); thông báo Bộ Công Thương và cung cấp dữ liệu cho cơ quan tư pháp (C-11); vi-VN là ngôn ngữ chính (C-12).
 
-### 2.4 Giả định & phụ thuộc
-- D-01 *(giả định)* OTP gửi qua nhà cung cấp SMS bên thứ ba.
-- D-02 *(giả định)* Nạp points qua cổng thanh toán nội địa (VNPay/MoMo…).
-- D-03 Lãi suất ngân hàng cập nhật hàng tháng từ đối tác.
-- D-04 Bảng giá đất nhập dần theo từng tỉnh từ văn bản gốc UBND.
-
----
+### 2.5 Giả định & phụ thuộc
+- [ASSUMPTION] Sản phẩm đang vận hành; SRS chuẩn hoá trạng thái mục tiêu.
+- [ASSUMPTION] Web và app dùng chung backend/API.
+- [ASSUMPTION] Có backoffice cho A8 (kiểm duyệt, duyệt môi giới, xác nhận lịch, xử lý vay).
+- [ASSUMPTION] Tích hợp ngân hàng/IEM/e-voucher ban đầu là quy trình vận hành, chưa phải API.
+- Phụ thuộc dịch vụ bản đồ, SMS OTP, cổng thanh toán, mô hình AI (sinh nội dung, xử lý ảnh) [ASSUMPTION: chưa xác định nhà cung cấp].
 
 ## 3. Yêu cầu chức năng
 
-> Định dạng: **FR-xx** · Actor · Tiền điều kiện · Luồng chính · Acceptance Criteria (AC) · Truy vết.
+### 3.1 M1 — Tìm kiếm & Khám phá
 
-### 3.1 Module M1 — Tìm kiếm & Khám phá
-
-#### FR-01 Tìm kiếm & lọc tin đăng
-- **Actor:** A1 · **Tiền điều kiện:** không
-- **Luồng:** chọn Bán/Thuê → chọn loại hình, khu vực (tỉnh/quận/phường), khoảng giá, diện tích, số PN → hệ thống trả danh sách sắp xếp mới nhất, phân trang.
-- **AC:**
+#### FR-01 Danh sách & lọc tin mua bán/cho thuê
+- **Actor:** A1, A6
+- **Tiền điều kiện:** không (khách vãng lai được dùng).
+- **Luồng chính:** chọn Mua bán/Cho thuê → chọn loại hình (bán: căn hộ, nhà hẻm, nhà mặt tiền, đất; thuê: 9 nhóm), khu vực, khoảng giá, diện tích, PN → tuỳ chọn bật "Tin xác thực"/"Tin có video" → chọn dạng danh sách/lưới → hệ thống trả kết quả phân trang.
+- **Tiêu chí chấp nhận:**
   - Given khách chọn "Nhà hẻm" + "Quận 1" + giá ≤ 10 tỷ, When bấm Tìm, Then mọi kết quả đều là nhà hẻm tại Quận 1 có giá ≤ 10 tỷ.
-  - Given bật bộ lọc "Tin xác thực", Then chỉ hiện tin có badge xác thực.
-  - Given khu vực nhập theo tên cũ (trước sáp nhập 2025), Then vẫn trả đúng tin thuộc đơn vị mới.
-- **Truy vết:** F-01, F-02, F-05
+  - Given bật lọc "Tin xác thực", When kết quả hiển thị, Then 100% thẻ tin có badge "Xác thực".
+  - Given một thẻ tin, When hiển thị, Then thẻ có giá, giá/m² (tự tính), diện tích, tầng, PN/WC, địa chỉ (theo quyền Ẩn số nhà).
+  - Given khu vực nhập theo tên trước sáp nhập 2025, When tìm, Then vẫn trả tin của đơn vị hành chính tương ứng (C-08).
+- **Truy vết:** F-01, F-02
 
-#### FR-02 Tìm kiếm bằng AI (ngôn ngữ tự nhiên)
-- **Actor:** A1 · **Luồng:** nhập câu ("nhà hẻm Bình Thạnh dưới 5 tỷ 3 phòng ngủ") → AI tách thành bộ lọc có cấu trúc → hiển thị bộ lọc đã hiểu + kết quả.
-- **AC:**
-  - Given câu chứa địa danh, Then địa danh được đưa vào trường `location`, không vào `query` (tránh khớp nhầm Bình Thạnh → Bình Tân).
-  - Then người dùng thấy và sửa được bộ lọc AI đã suy ra.
+#### FR-02 Trang danh mục SEO theo loại hình & khu vực
+- **Actor:** A1, công cụ tìm kiếm
+- **Tiền điều kiện:** loại hình/khu vực có ít nhất 1 tin đang hiển thị [ASSUMPTION].
+- **Luồng chính:** người dùng/crawler mở URL slug (vd. `/mua-ban-nha-hem`, `/ban-nha-quan-1-thanh-pho-ho-chi-minh`) → hệ thống render danh sách đã lọc sẵn kèm tiêu đề/mô tả riêng.
+- **Tiêu chí chấp nhận:**
+  - Given URL `/cho-thue-phong-tro`, When mở, Then danh sách chỉ gồm tin cho thuê phòng trọ và có thẻ title/meta riêng.
+  - Given slug không tồn tại, When mở, Then trả HTTP 404, không trả trang trống mã 200.
 - **Truy vết:** F-03
 
-#### FR-03 Xem trên bản đồ
-- **Actor:** A1 · **Luồng:** chuyển `?xem=ban-do` → ghim hiển thị giá → người dùng vẽ đa giác → danh sách lọc theo vùng.
-- **AC:** Given vẽ vùng, Then chỉ tin có toạ độ trong đa giác được liệt kê; Given tin bật Ẩn số nhà, Then ghim hiển thị vị trí xấp xỉ, không lộ số nhà.
-- **Truy vết:** F-04, F-16
+#### FR-03 Bản đồ BĐS
+- **Actor:** A1, A6
+- **Tiền điều kiện:** tin có toạ độ.
+- **Luồng chính:** chuyển sang chế độ bản đồ (`?xem=ban-do`) → ghim hiển thị giá → người dùng vẽ vùng → danh sách lọc theo vùng.
+- **Tiêu chí chấp nhận:**
+  - Given người dùng vẽ một đa giác, When thả chuột, Then chỉ những tin có toạ độ nằm trong đa giác được liệt kê.
+  - Given tin bật Ẩn số nhà và người xem chưa đủ quyền, When hiển thị ghim, Then ghim ở vị trí xấp xỉ [ASSUMPTION: bán kính ≥ 200 m], không lộ số nhà.
+- **Truy vết:** F-04, F-22
 
-#### FR-04 Chi tiết tin đăng
-- **Actor:** A1 · **Luồng:** mở tin → ảnh (gallery), video, giá, giá/m², diện tích, tầng, PN/WC, pháp lý, địa chỉ, người đăng, nút liên hệ/đặt lịch.
-- **AC:** giá/m² = giá ÷ diện tích **đất**; số tầng luôn hiển thị cạnh giá/m²; badge "xác thực" khi FR-15 đạt.
+#### FR-04 Tìm kiếm AI bằng ngôn ngữ tự nhiên
+- **Actor:** A1
+- **Tiền điều kiện:** không.
+- **Luồng chính:** nhập câu (vd. "nhà hẻm Bình Thạnh dưới 5 tỷ 3 phòng ngủ") → AI tách thành bộ lọc có cấu trúc → hiển thị bộ lọc đã suy ra + kết quả + gợi ý BĐS tương tự.
+- **Tiêu chí chấp nhận:**
+  - Given câu có địa danh, When AI phân tích, Then địa danh được đưa vào `location`, không vào `query` (C-07).
+  - Given AI đã suy ra bộ lọc, When kết quả hiển thị, Then người dùng thấy từng bộ lọc dưới dạng chip và xoá/sửa được.
+  - Given câu không suy ra được bộ lọc nào, When tìm, Then hệ thống quay về tìm theo từ khoá và báo cho người dùng.
+- **Truy vết:** F-05, F-58
+
+#### FR-05 Lưu tin & thông báo tìm kiếm
+- **Actor:** A1
+- **Tiền điều kiện:** đã đăng nhập.
+- **Luồng chính:** bấm lưu tin hoặc lưu bộ tìm kiếm → khi có tin mới khớp bộ lọc, hệ thống gửi thông báo (push/email) [ASSUMPTION: kênh].
+- **Tiêu chí chấp nhận:**
+  - Given khách chưa đăng nhập bấm "Lưu", When thao tác, Then được chuyển sang đăng nhập và hành động được giữ lại sau khi đăng nhập.
+  - Given đã lưu tìm kiếm, When có tin mới khớp được duyệt, Then thông báo gửi trong ≤ 15 phút [ASSUMPTION].
 - **Truy vết:** F-06
 
-#### FR-05 Tra cứu & so sánh dự án
-- **Actor:** A1 · **Luồng:** lọc dự án theo loại căn, trạng thái bán (upcoming/booking_open/open/delivered/closed), khoảng giá căn → chọn 2–5 dự án → bảng so sánh cùng tiêu chí (pháp lý, tiến độ, chủ đầu tư, giá).
-- **AC:** minUnitPrice/maxUnitPrice lọc theo giá **tổng căn**, không theo m².
-- **Truy vết:** F-07
+#### FR-06 Video BĐS
+- **Actor:** A1
+- **Tiền điều kiện:** tin có video.
+- **Luồng chính:** mở video.moso.vn hoặc tab Video trong app → xem dạng feed → bấm sang tin gốc.
+- **Tiêu chí chấp nhận:**
+  - Given một video, When bấm "Xem tin", Then mở đúng tin gốc.
+  - Given tin gốc đã ẩn/đã bán, When video đang trong feed, Then video bị gỡ khỏi feed.
+- **Truy vết:** F-07, F-55
 
-#### FR-06 Nguồn nhà đặc biệt (MOSO Signature)
-- **Actor:** A1, A3 · **Luồng:** xem giỏ hàng đấu giá/phát mãi → chi tiết pháp lý đã xác minh → đăng ký tư vấn + vay.
-- **AC:** mỗi tin hiển thị nguồn (ngân hàng / Thi Hành Án) và chênh lệch so với giá thị trường.
-- **Truy vết:** F-08
+#### FR-07 Tra cứu & so sánh dự án sơ cấp
+- **Actor:** A1, A6
+- **Tiền điều kiện:** không.
+- **Luồng chính:** lọc dự án theo loại căn, trạng thái bán, khoảng giá → mở thẻ dự án (trạng thái, số căn, diện tích, CĐT, pháp lý, giá từ) → thêm 2+ dự án vào bảng so sánh.
+- **Tiêu chí chấp nhận:**
+  - Given lọc giá 2–4 tỷ, When tìm, Then lọc theo giá **tổng căn**, không theo giá/m² (C-07).
+  - Given đã thêm ≥ 2 dự án, When mở bảng so sánh, Then mọi dự án được so trên cùng bộ tiêu chí; ô thiếu dữ liệu ghi "Chưa có", không để trống.
+- **Truy vết:** F-08, F-09
 
-#### FR-07 Gửi yêu cầu xem nhà / tư vấn
-- **Actor:** A1, A6 · **Luồng:** nhập tên*, SĐT*, (tin, intent=viewing|consult, thời gian mong muốn, email, lời nhắn) → tạo lead trạng thái *chờ xử lý* → chuyên viên gọi lại xác nhận → nhắc lịch tự động.
-- **AC:**
-  - Given cùng SĐT + cùng tin trong 24h, Then trả lại lead cũ với `duplicated: true`, không tạo bản ghi mới.
-  - Then thông báo cho người dùng là "đã gửi yêu cầu", **không** được nói "đã chốt lịch".
-  - Given SĐT sai định dạng VN, Then từ chối với thông báo lỗi.
-- **Truy vết:** F-09, F-45
+#### FR-08 Nguồn nhà đặc biệt (MOSO Signature)
+- **Actor:** A1, A6, A8
+- **Tiền điều kiện:** không.
+- **Luồng chính:** xem giỏ hàng đấu giá/phát mãi → khách để lại tiêu chí (tối đa 5 tỉnh, 5 phân khúc giá) + liên hệ → A8 kiểm tra pháp lý và đồng hành đến bàn giao.
+- **Tiêu chí chấp nhận:**
+  - Given một tin Signature, When hiển thị, Then ghi rõ nguồn (ngân hàng/Thi hành án) và mức chênh so với giá thị trường.
+  - Given khách chọn hơn 5 tỉnh, When gửi, Then hệ thống chặn và báo giới hạn.
+- **Truy vết:** F-10
 
-### 3.2 Module M2 — Đăng tin
+### 3.2 M2 — Liên hệ & Giao dịch
 
-#### FR-08 Đăng tin với AI
-- **Actor:** A2, A3 · **Tiền điều kiện:** đã đăng nhập, đủ points
-- **Luồng:** chọn Bán/Cho thuê → nhập loại BĐS, địa chỉ, diện tích, giá, pháp lý, PN/WC, ảnh → AI sinh tiêu đề + mô tả → người dùng duyệt/sửa → xác nhận → trừ points → tin hiển thị 30 ngày.
-- **AC:**
-  - AI trả bản nháp tiêu đề + mô tả trong ≤ 30 giây (P95).
-  - Form cho thuê có trường chi phí kèm (điện, nước, phí quản lý), nội thất, điều kiện thuê.
-  - Given số dư < phí, Then chặn đăng và gợi ý nạp/kiếm points.
-  - Tài khoản mới đủ points đăng tin đầu tiên miễn phí.
-- **Truy vết:** F-10, F-17
+#### FR-09 Nhắn tin với người đăng tin
+- **Actor:** A1, A2, A3, A8
+- **Tiền điều kiện:** đã đăng nhập.
+- **Luồng chính:** từ trang tin bấm "Nhắn tin" → mở hội thoại gắn với tin → hai bên trao đổi; chuyên viên có thể tham gia.
+- **Tiêu chí chấp nhận:**
+  - Given người mua gửi tin nhắn, When người đăng đang online, Then tin nhắn đến trong ≤ 2 giây (NFR-02).
+  - Given hội thoại, When mở, Then luôn hiện thẻ tin liên quan ở đầu.
+- **Truy vết:** F-11
 
-#### FR-09 Quản lý tin của tôi
-- **Actor:** A2, A3 · **Luồng:** danh sách tin → sửa, cập nhật giá, đánh dấu đã bán/đã thuê, ẩn, xem analytics (lượt xem, lượt quan tâm).
-- **AC:** Given tin hết 30 ngày, Then hệ thống tự trừ points gia hạn; Given không đủ points, Then tin bị **ẩn số liên hệ** (không xoá).
-- **Truy vết:** F-11, F-17
+#### FR-10 Đặt lịch / yêu cầu xem nhà
+- **Actor:** A1, A8
+- **Tiền điều kiện:** tin đang hiển thị.
+- **Luồng chính:** nhập họ tên*, SĐT*, intent (viewing/consult), thời gian mong muốn, lời nhắn → tạo lead "chờ xử lý" → A8 gọi lại xác nhận → nhắc lịch tự động trước giờ hẹn.
+- **Tiêu chí chấp nhận:**
+  - Given cùng SĐT + cùng tin trong 24h, When gửi lại, Then không tạo lead mới và trả về lead cũ.
+  - Given gửi thành công, When hiển thị phản hồi, Then thông báo là "đã gửi yêu cầu", **không** phải "đã chốt lịch".
+  - Given SĐT sai định dạng VN, When gửi, Then bị từ chối kèm thông báo lỗi.
+  - Given lịch đã xác nhận, When còn 2 giờ trước giờ hẹn [ASSUMPTION], Then gửi nhắc lịch cho người mua.
+- **Truy vết:** F-12, F-13
 
-#### FR-10 Đẩy tin
-- **Actor:** A2, A3 · **Luồng:** chọn tin → chọn gói (8h 5k · 24h 10k + Hot · 7 ngày 50k + Hot) → chọn phạm vi (khu vực / toàn tỉnh) → thanh toán points.
-- **AC:** gói 8h tối đa 3 lượt/tin/ngày; nhãn "Hot" hiển thị đúng thời hạn gói; hết hạn tự gỡ ưu tiên.
-- **Truy vết:** F-12
+#### FR-11 Hỗ trợ giao dịch & pháp lý
+- **Actor:** A1, A2, A8
+- **Tiền điều kiện:** đã có lead hoặc đã đăng nhập.
+- **Luồng chính:** xem hướng dẫn giao dịch từng bước + checklist pháp lý + mẫu hợp đồng → tuỳ chọn đăng ký dịch vụ nâng cao có phí (xác minh tài liệu, đàm phán).
+- **Tiêu chí chấp nhận:**
+  - Given khách chọn dịch vụ có phí, When xác nhận, Then hiển thị giá trước khi đặt (Q-11).
+  - Given checklist pháp lý, When hiển thị, Then mỗi mục dẫn căn cứ văn bản luật (C-10).
+- **Truy vết:** F-14
 
-#### FR-11 Xoá watermark ảnh bằng AI
-- **Actor:** A1' (yêu cầu đăng nhập) · **Luồng:** tải ≤ 20 ảnh (PNG/JPG/WEBP, ≤ 10MB/ảnh) → AI xoá logo/chữ/SĐT → người dùng tô vùng còn sót → so sánh trước/sau, quay lại phiên bản cũ → tải từng ảnh hoặc ZIP.
-- **AC:** ảnh tải về giữ nguyên kích thước, định dạng, tên file gốc; file > 10MB hoặc > 20 ảnh bị từ chối kèm thông báo; nút xoá watermark có sẵn trong form đăng tin.
-- **Truy vết:** F-13
+### 3.3 M3 — Đăng tin & Quản lý tin
 
-#### FR-12 Ký gửi & nhà cần bán nhanh
-- **Actor:** A2 ký gửi, A3 nhận bán · **Luồng:** chủ nhà ký gửi → admin xác thực → tin vào `/nha-dat-can-ban-nhanh` → môi giới trong khu vực nhận bán, hưởng hoa hồng.
-- **AC:** chỉ môi giới đã hoàn thiện hồ sơ + khu vực hoạt động phù hợp mới thấy nút "Nhận bán".
-- **Truy vết:** F-14, F-19
+#### FR-12 Đăng tin bán/cho thuê bằng AI
+- **Actor:** A2, A3
+- **Tiền điều kiện:** đã đăng nhập; ví đủ point hoặc có thể nạp.
+- **Luồng chính:** chọn Bán/Cho thuê → nhập thông tin cơ bản (loại hình, địa chỉ, diện tích, giá; thuê: giá thuê, chi phí kèm, nội thất, điều kiện) → AI gợi ý tiêu đề, mô tả, bố cục → người đăng sửa, thêm ảnh/pháp lý → gửi duyệt → trừ point theo bảng giá.
+- **Tiêu chí chấp nhận:**
+  - Given đủ trường bắt buộc, When bấm "AI viết tin", Then bản nháp hiện trong ≤ 30 giây (NFR-03).
+  - Given người đăng sửa bản nháp AI, When lưu, Then giữ nguyên nội dung người đăng đã sửa, không bị AI ghi đè.
+  - Given tin bán đã xác thực, When đăng, Then trừ 5 point; chưa xác thực thì trừ 8; tin thuê trừ 5 (F-24).
+- **Truy vết:** F-15, F-16
 
-### 3.3 Module M3 — Xác thực & Bảo vệ
+#### FR-13 Tin của tôi & gia hạn
+- **Actor:** A2, A3
+- **Tiền điều kiện:** đã đăng nhập, có ít nhất 1 tin.
+- **Luồng chính:** xem danh sách tin → sửa, cập nhật giá, đánh dấu đã bán/đã cho thuê, ẩn tin → hết chu kỳ 30 ngày hệ thống tự gia hạn và trừ point.
+- **Tiêu chí chấp nhận:**
+  - Given tin đến hạn 30 ngày và ví đủ point, When đến hạn, Then tự gia hạn và ghi giao dịch trừ point.
+  - Given ví không đủ point, When đến hạn, Then tin vẫn hiển thị nhưng ẩn số liên hệ (C-01) và chủ tin nhận thông báo.
+  - Given đánh dấu "đã bán", When lưu, Then tin rời khỏi kết quả tìm kiếm trong ≤ 5 phút.
+- **Truy vết:** F-17, F-24
 
-#### FR-13 Xác thực tin "3 THẬT"
-- **Actor:** A2 gửi, A7 duyệt · **Luồng:** chủ tin gửi giấy tờ pháp lý + ảnh thật + vị trí ghim → chuyên viên/AI kiểm tra chính chủ, pháp lý, ảnh không trùng → gắn badge.
-- **AC:** Given tin được xác thực, Then phí đăng/gia hạn bán giảm 8 → 5 MP; Given ảnh trùng tin khác, Then từ chối với lý do; SLA xác minh ≤ 24h.
-- **Truy vết:** F-15
-
-#### FR-14 Ẩn số nhà
-- **Actor:** A2, A3 bật; A1 xem · **Luồng:** bật tuỳ chọn (5 MP/30 ngày) → địa chỉ hiển thị dạng "đường, phường" → người xem đủ điều kiện (đăng nhập + xác thực SĐT *(giả định)*) mới thấy số nhà.
-- **AC:** số nhà không xuất hiện trong HTML, markdown, API, sitemap hay bản đồ đối với người xem chưa đủ điều kiện; mỗi lần mở địa chỉ được ghi log.
-- **Truy vết:** F-16
-
-### 3.4 Module M4 — MOSO Points
-
-#### FR-15 Ví & giao dịch points
-- **Actor:** A1'–A4 · **Luồng:** xem số dư, lịch sử cộng/trừ; nạp gói từ 50.000đ.
-- **AC:** mọi giao dịch có bút toán đối ứng (không âm số dư); phí khớp bảng giá công bố; giá hiển thị đã gồm VAT.
-- **Truy vết:** F-17
-
-#### FR-16 Kiếm points miễn phí
-- **Actor:** A1'–A3 · **Luồng:** nhận quà chào mừng (+30, môi giới +100), điểm danh +1/ngày, hoàn thiện hồ sơ +30, nhiệm vụ tin đầu tiên tới +35, mốc follower/tin xác thực tới +100, xác thực chứng chỉ +100.
-- **AC:** mỗi phần thưởng một lần cho mỗi tài khoản (trừ điểm danh 1 lần/ngày); chống lạm dụng nhiều tài khoản cùng SĐT/thiết bị.
+#### FR-14 Đẩy tin
+- **Actor:** A2, A3
+- **Tiền điều kiện:** tin đang hiển thị; ví đủ point.
+- **Luồng chính:** chọn gói (8 giờ 5.000đ; 24 giờ + Hot 10.000đ; 7 ngày + Hot 50.000đ) → chọn phạm vi (khu vực đăng/toàn tỉnh) → xác nhận → trừ point → tin được ưu tiên trong thời hạn gói.
+- **Tiêu chí chấp nhận:**
+  - Given tin đã đẩy gói 8 giờ 3 lượt trong ngày, When đẩy lượt thứ 4, Then bị từ chối (C-03).
+  - Given gói 24 giờ hoặc 7 ngày, When kích hoạt, Then tin có nhãn "Hot" đến hết hạn gói.
 - **Truy vết:** F-18
 
-### 3.5 Module M5 — Môi giới & Đối tác
+#### FR-15 Xoá watermark ảnh bằng AI
+- **Actor:** A2, A3
+- **Tiền điều kiện:** đã đăng nhập.
+- **Luồng chính:** tải ảnh lên → AI xoá logo/chữ/SĐT → người dùng tô vùng sót để xoá thêm → so sánh trước/sau → tải từng ảnh hoặc ZIP, hoặc chèn thẳng vào form đăng tin.
+- **Tiêu chí chấp nhận:**
+  - Given 21 ảnh, ảnh > 10 MB hoặc định dạng khác PNG/JPG/WEBP, When tải lên, Then bị từ chối kèm lý do (C-04).
+  - Given ảnh đã xử lý, When mở lịch sử, Then xem và khôi phục được các phiên bản trước.
+- **Truy vết:** F-19
 
-#### FR-17 Đăng ký tài khoản môi giới
-- **Actor:** A3 · **Luồng:** nhập SĐT → OTP → hồ sơ (thông tin liên hệ, khu vực, thị trường tập trung) → hiển thị danh bạ; quyền nâng cao chờ admin duyệt.
-- **AC:** miễn phí; OTP hết hạn sau thời gian giới hạn và giới hạn số lần gửi lại.
-- **Truy vết:** F-19, F-41
-
-#### FR-18 Danh bạ & MOSO Score
-- **Actor:** A1 · **Luồng:** tìm môi giới theo khu vực, thị trường (secondary_house/apartment/primary_project/rent/industrial), khoảng giá, chỉ đã xác thực → xếp hạng theo MOSO Score.
-- **AC:** Score tính từ 6 yếu tố (hồ sơ, tin xác thực, review, Partner +10đ, tương tác, chứng chỉ; 40% trọng số từ đăng tin & hoạt động); phân trang trong top 50.
+#### FR-16 Thống kê tin đăng
+- **Actor:** A2, A3
+- **Tiền điều kiện:** có tin đang hiển thị.
+- **Luồng chính:** mở thống kê tin → xem lượt xem, lượt quan tâm (lưu, nhắn tin, yêu cầu xem) theo thời gian.
+- **Tiêu chí chấp nhận:**
+  - Given một lượt xem mới, When chủ tin mở thống kê, Then số liệu cập nhật với độ trễ ≤ 60 giây [ASSUMPTION].
 - **Truy vết:** F-20
 
-#### FR-19 MOSO Partner
-- **Actor:** A3, A4 · **Luồng:** đăng ký Partner cá nhân hoặc doanh nghiệp → xác minh ≤ 24h → nhận points (tới 1.000), truy cập kho hàng ngân hàng, giảm học phí (20% cá nhân / 30% DN); DN nhận website chuẩn SEO + trang quản trị đội ngũ + đồng bộ giỏ hàng lên MOSO 0đ.
-- **AC:** phản hồi đăng ký ≤ 2h làm việc; tin đồng bộ từ hệ thống DN được chuẩn hoá bởi AI và không trùng lặp.
+### 3.4 M4 — Xác thực & Bảo vệ tin
+
+#### FR-17 Xác thực tin đăng (ARV)
+- **Actor:** A2, A3, A8
+- **Tiền điều kiện:** tin đã gửi; người đăng tải giấy tờ chủ sở hữu/pháp lý.
+- **Luồng chính:** người đăng gửi giấy tờ (sổ đỏ/sổ hồng) + ảnh thật → A8 kiểm tra chủ sở hữu, pháp lý, đối chiếu quy hoạch, ảnh → đạt thì gắn badge "Xác thực", không đạt thì trả lý do.
+- **Tiêu chí chấp nhận:**
+  - Given tin đạt cả 3 tiêu chí, When A8 duyệt, Then hiển thị badge "Xác thực" và áp giá 5 point.
+  - Given tin bị từ chối, When người đăng mở tin, Then thấy lý do cụ thể và gửi bổ sung được.
+  - Given tin chưa xác thực, When hiển thị [ASSUMPTION: vẫn cho đăng, chờ Q-01], Then không có badge và lọc "Tin xác thực" loại bỏ tin đó.
 - **Truy vết:** F-21
 
-#### FR-20 Khoá học chứng chỉ môi giới
-- **Actor:** A3 · **Luồng:** đăng ký khoá 8 buổi (MOSO × IEM) → tư vấn 1-1 → học → thi → xác thực chứng chỉ trên hồ sơ (+100 points).
-- **Truy vết:** F-22, F-18
+#### FR-18 Ẩn số nhà
+- **Actor:** A2, A3, A1
+- **Tiền điều kiện:** chủ tin bật tính năng; ví đủ 5 point/kỳ 30 ngày.
+- **Luồng chính:** chủ tin bật Ẩn số nhà → địa chỉ công khai chỉ còn đường/phường → khách có nhu cầu thật đã xác thực [ASSUMPTION: đã xác minh SĐT bằng OTP và có lead với tin] mới thấy địa chỉ đầy đủ.
+- **Tiêu chí chấp nhận:**
+  - Given khách chưa xác thực, When xem tin, trang SEO, bản đồ hoặc API/MCP, Then không kênh nào trả về số nhà.
+  - Given khách đủ điều kiện, When xem tin, Then thấy địa chỉ đầy đủ và lượt mở được ghi log cho chủ tin.
+  - Given hết kỳ 30 ngày và ví thiếu point, When gia hạn thất bại, Then chủ tin được thông báo trước khi tính năng tắt [ASSUMPTION].
+- **Truy vết:** F-22
 
-#### FR-21 Cộng tác viên giới thiệu
-- **Actor:** A5 · **Luồng:** gửi nguồn nhà bán/thuê hoặc nguồn khách trên mobile → MOSO xử lý → khi thành công nhận e-voucher (100k bán/khách, 10k thuê) qua Urbox/Gotit.
-- **AC:** trạng thái từng nguồn hiển thị realtime; không yêu cầu chứng chỉ môi giới.
+#### FR-19 Tiêu chuẩn nội dung & đính chính
+- **Actor:** A8
+- **Tiền điều kiện:** nội dung biên tập (tin tức, báo cáo) do AI soạn nháp.
+- **Luồng chính:** AI soạn nháp → biên tập viên kiểm tra pháp lý/số liệu/nguồn → xuất bản; người đọc gửi đính chính qua email → biên tập viên xử lý.
+- **Tiêu chí chấp nhận:**
+  - Given bản nháp AI, When chưa có biên tập viên duyệt, Then không thể xuất bản.
+  - Given yêu cầu đính chính được chấp nhận, When cập nhật, Then bài hiển thị ghi chú đính chính kèm ngày.
 - **Truy vết:** F-23
 
-#### FR-22 Đăng ký sự kiện Workshop
-- **Actor:** A3 · **AC:** form đăng ký miễn phí, đếm ngược đến giờ sự kiện, xác nhận qua SĐT/email.
+### 3.5 M5 — MOSO Points & Thanh toán
+
+#### FR-20 Ví MOSO Points & bảng giá
+- **Actor:** A2, A3, A4
+- **Tiền điều kiện:** đã đăng nhập.
+- **Luồng chính:** xem số dư và lịch sử giao dịch → nạp gói (từ 50.000đ) qua cổng thanh toán [ASSUMPTION: Q-08] → point được cộng → hệ thống tự trừ khi đăng/gia hạn/đẩy tin/Ẩn số nhà.
+- **Tiêu chí chấp nhận:**
+  - Given nạp 50.000đ thành công, When cổng trả callback thành công, Then ví cộng đúng 50 point (C-02) trong ≤ 1 phút.
+  - Given bất kỳ giao dịch trừ point nào, When hoàn tất, Then lịch sử ghi lý do, tin liên quan, số dư trước/sau.
+  - Given callback thanh toán bị gửi lặp, When xử lý, Then chỉ cộng point một lần (idempotent).
 - **Truy vết:** F-24
 
-### 3.6 Module M6 — Tài chính & Vay
-
-#### FR-23 So sánh & đăng ký vay thế chấp
-- **Actor:** A1 · **Luồng:** xem bảng lãi suất 13+ ngân hàng (cập nhật hàng tháng) → chọn gói → đăng ký hỗ trợ hồ sơ → chuyển lead cho ngân hàng.
-- **AC:** hiển thị ngày cập nhật lãi suất; cảnh báo lãi thả nổi sau ưu đãi.
+#### FR-21 Kiếm points miễn phí
+- **Actor:** A1, A2, A3
+- **Tiền điều kiện:** đã đăng nhập.
+- **Luồng chính:** hệ thống cộng point theo sự kiện: quà chào mừng (+30 thường, +100 môi giới), hoàn thiện hồ sơ, tin đầu tiên, mốc tin xác thực, mốc người theo dõi, điểm danh +1/ngày.
+- **Tiêu chí chấp nhận:**
+  - Given đã điểm danh hôm nay, When điểm danh lần nữa trong cùng ngày, Then không cộng thêm.
+  - Given mỗi phần thưởng một lần, When điều kiện đạt lại, Then không cộng lặp.
 - **Truy vết:** F-25
 
-#### FR-24 Bộ tính vay mua nhà
-- **Actor:** A1 · **Luồng:** 3 tab: (a) khả năng mua: thu nhập, nợ, vốn tự có, lãi suất, thời hạn, % trả nợ tối đa → giá nhà tối đa; (b) DTI trước/sau vay; (c) lịch trả góp dư nợ giảm dần / trả đều.
-- **AC:** DTI > 50% hiển thị cảnh báo; tổng phải trả = gốc + tổng lãi; nhãn tham khảo (C-04).
+#### FR-22 Trò chơi đoán giá nhà đất
+- **Actor:** A1
+- **Tiền điều kiện:** đã đăng nhập (để tính điểm).
+- **Luồng chính:** chơi 5 câu × 20 giây, mỗi câu dùng giá của tin thật → chấm điểm theo % sai lệch → bảng xếp hạng tháng → Top 3 có ≥ 1000 điểm nhận 200/100/50 point.
+- **Tiêu chí chấp nhận:**
+  - Given đã chơi 5 lượt tính điểm trong ngày, When chơi lượt thứ 6, Then được chơi nhưng không tính điểm (C-13).
+  - Given hết tháng, When chốt bảng, Then chỉ người Top 3 có ≥ 1000 điểm được thưởng.
+  - Given hết 20 giây, When chưa trả lời, Then câu đó được 0 điểm.
 - **Truy vết:** F-26
 
-#### FR-25 Định giá & cầm cố
-- **Actor:** A1 · **Luồng:** chọn tỉnh, quận, loại hình, diện tích, kỳ hạn → giá trị ước tính (giá/m² khu vực, biên ±10%) + hạn mức vay & trả góp từng ngân hàng.
-- **Truy vết:** F-27
+### 3.6 M6 — Môi giới & Đối tác
 
-### 3.7 Module M7 — Công cụ BĐS
-| FR | Công cụ | AC chính | Truy vết |
-|---|---|---|---|
-| FR-26 | Thuế & phí giao dịch | TNCN 2% (bên bán, không thấp hơn bảng giá đất), trước bạ 0,5% (bên mua), công chứng luỹ tiến ~0,1%; tách bên mua/bán; có tiện ích trình duyệt Chrome/Firefox | F-28 |
-| FR-27 | Bảng giá đất nhà nước | Tra theo tỉnh/huyện/xã/nhóm đất/tên đường, kèm số quyết định, ngày hiệu lực, link văn bản; tỉnh chưa có dữ liệu → báo "chưa có dữ liệu", **không** ước lượng | F-29 |
-| FR-28 | Chuyển mục đích SDĐ | Tiền SDĐ = (giá đất ở − giá đất NN) × diện tích (NĐ 103/2024 Đ8) + trước bạ 0,5% + phí thẩm định, đo đạc, cấp GCN; hiển thị tỷ trọng % | F-30 |
-| FR-29 | Thuê hay mua | So sánh chi phí ròng sau N năm gồm lãi vay, tăng giá, chi phí cơ hội → kết luận MUA/THUÊ | F-31 |
-| FR-30 | Lợi nhuận đầu tư | Cho thuê: gross/net yield, dòng tiền, hoàn vốn, so với lãi tiết kiệm. Flip: tổng vốn, ROI, ROI quy năm | F-32 |
-| FR-31 | Hiệu quả đầu tư | Giá trị sau N năm của BĐS/ngân hàng/chứng khoán/vàng, chỉ ra kênh cao nhất; ROI farmstay | F-33 |
-| FR-32 | Nên mua hay chờ | Điểm 0–100 = giá khu vực (40) + lãi suất (40) + DTI (20) → MUA / CÂN NHẮC / CHỜ | F-34 |
-| FR-33 | Check quy hoạch | *Backlog — sắp ra mắt* | F-35 |
+#### FR-23 Đăng ký tài khoản môi giới
+- **Actor:** A3, A8
+- **Tiền điều kiện:** có SĐT VN.
+- **Luồng chính:** nhập SĐT → xác thực OTP → hoàn thiện hồ sơ (liên hệ, khu vực hoạt động) → nhận quà chào mừng → yêu cầu quyền nâng cao → A8 duyệt.
+- **Tiêu chí chấp nhận:**
+  - Given nhập sai OTP 5 lần [ASSUMPTION], When thử lại, Then khoá xác thực 15 phút.
+  - Given chưa được A8 duyệt, When truy cập tính năng nâng cao, Then bị chặn kèm trạng thái "Chờ duyệt".
+- **Truy vết:** F-27, F-53
 
-Mọi công cụ M7: chạy được không cần đăng nhập, cập nhật kết quả ngay khi đổi input, ghi rõ căn cứ pháp lý & ngày cập nhật.
+#### FR-24 Danh bạ môi giới & MOSO Score
+- **Actor:** A1, A3, A7
+- **Tiền điều kiện:** không.
+- **Luồng chính:** lọc môi giới theo khu vực/thị trường/chỉ đã xác thực → sắp xếp theo MOSO Score (6 yếu tố: hồ sơ, tin xác thực, review, Partner +10đ, tương tác, chứng chỉ).
+- **Tiêu chí chấp nhận:**
+  - Given bật "Chỉ đã xác thực", When tìm, Then chỉ trả môi giới đã xác thực.
+  - Given môi giới mở hồ sơ của mình, When xem MOSO Score, Then thấy điểm từng yếu tố (Q-09).
+- **Truy vết:** F-28
 
-### 3.8 Module M8 — Dữ liệu thị trường & Nội dung
-#### FR-34 Báo cáo thị trường
-- Báo cáo theo tháng/quý/6 tháng/năm & khu vực; số liệu tổng (tin bán, thuê, xác thực, đã giao dịch) đếm trực tiếp, cập nhật mỗi giờ; bảng lệch cung–cầu (hạng cầu từ MOSO AI vs hạng cung từ tin đăng); tải bản đầy đủ.
+#### FR-25 Nhà đất cần bán nhanh (ký gửi)
+- **Actor:** A2, A3
+- **Tiền điều kiện:** A3 đã đăng nhập.
+- **Luồng chính:** chủ nhà ký gửi tin → tin vào kho ký gửi → môi giới duyệt kho, nhận bán → hưởng hoa hồng khi giao dịch thành công.
+- **Tiêu chí chấp nhận:**
+  - Given môi giới nhận bán một tin, When xác nhận, Then chủ nhà được thông báo và thấy môi giới nào đang phụ trách.
+- **Truy vết:** F-29
+
+#### FR-26 MOSO Partner cá nhân & doanh nghiệp
+- **Actor:** A3, A4, A8
+- **Tiền điều kiện:** có tài khoản môi giới (cá nhân) hoặc thông tin doanh nghiệp.
+- **Luồng chính:** đăng ký Partner miễn phí → A8 phản hồi → cá nhân nhận point, nguồn hàng xác thực, kết nối ngân hàng, ưu đãi học phí; doanh nghiệp nhận website chuẩn SEO + trang quản trị nguồn hàng/đội ngũ + đồng bộ giỏ hàng lên MOSO.vn.
+- **Tiêu chí chấp nhận:**
+  - Given đơn đăng ký Partner gửi trong giờ làm việc, When đến hạn, Then A8 phản hồi trong ≤ 2 giờ.
+  - Given doanh nghiệp cập nhật giỏ hàng trên website của mình, When đồng bộ, Then tin xuất hiện trên MOSO.vn trong ≤ 15 phút [ASSUMPTION].
+- **Truy vết:** F-30, F-31
+
+#### FR-27 Hoa hồng, theo dõi realtime & Workshop
+- **Actor:** A3, A4
+- **Tiền điều kiện:** là Partner.
+- **Luồng chính:** xem chính sách hoa hồng sơ cấp/thứ cấp → theo dõi tiến độ khách và hoa hồng trên app → đăng ký tham dự Workshop.
+- **Tiêu chí chấp nhận:**
+  - Given trạng thái giao dịch của khách thay đổi, When A8 cập nhật, Then Partner thấy trạng thái mới trên app trong ≤ 60 giây.
+  - Given Workshop đã đủ chỗ, When đăng ký, Then bị từ chối hoặc vào danh sách chờ.
+- **Truy vết:** F-32
+
+#### FR-28 Cộng tác viên giới thiệu
+- **Actor:** A5, A10
+- **Tiền điều kiện:** đã đăng nhập trên mobile.
+- **Luồng chính:** gửi nguồn nhà bán/khách hoặc nguồn nhà thuê → A8 xác minh → hợp lệ thì phát e-voucher (100.000đ bán / 10.000đ thuê) qua Urbox/Gotit → CTV theo dõi thưởng realtime.
+- **Tiêu chí chấp nhận:**
+  - Given nguồn trùng với nguồn đã có trên hệ thống, When gửi, Then bị đánh dấu trùng và không thưởng.
+  - Given nguồn được duyệt hợp lệ, When phát thưởng, Then e-voucher đúng mệnh giá hiện trong ví thưởng của CTV.
+- **Truy vết:** F-33
+
+#### FR-29 Khoá học chứng chỉ môi giới
+- **Actor:** A3, A10 (IEM)
+- **Tiền điều kiện:** đã đăng nhập.
+- **Luồng chính:** xem khoá 8 buổi → đăng ký (1.990.000đ cho Partner, kèm 2 workshop + gói đăng tin 200K) → hoàn thành → tải chứng chỉ lên → A8 xác thực → +100 point và cộng vào MOSO Score.
+- **Tiêu chí chấp nhận:**
+  - Given chứng chỉ được xác thực, When duyệt, Then cộng đúng 100 point một lần và yếu tố "chứng chỉ" của MOSO Score được cập nhật.
+- **Truy vết:** F-34
+
+#### FR-30 CRM & AI gợi ý khách cho môi giới
+- **Actor:** A3
+- **Tiền điều kiện:** tài khoản môi giới; có tin đang quản lý. [ASSUMPTION: tính năng đã có trong app, chờ Q-07]
+- **Luồng chính:** quản lý danh sách khách, lịch hẹn, hợp đồng → AI gợi ý khách tiềm năng theo danh mục BĐS đang quản lý.
+- **Tiêu chí chấp nhận:**
+  - Given lead mới gắn với tin của môi giới, When tạo lead, Then lead tự xuất hiện trong CRM của môi giới đó.
+  - Given gợi ý AI, When hiển thị, Then mỗi gợi ý ghi lý do khớp (khu vực, giá, loại hình).
+- **Truy vết:** F-35
+
+### 3.7 M7 — Tài chính & Vay
+
+#### FR-31 Vay thế chấp qua MOSO
+- **Actor:** A3, A1, A8, A10 (ngân hàng)
+- **Tiền điều kiện:** Partner đăng nhập [ASSUMPTION: người mua cuối gửi qua Partner, chờ Q-04].
+- **Luồng chính:** xem bảng lãi suất 13+ ngân hàng theo tháng → gửi hồ sơ khách → A8 tiếp nhận, phân loại, match ngân hàng, trình hồ sơ → theo dõi trạng thái real-time; phí 0đ.
+- **Tiêu chí chấp nhận:**
+  - Given hồ sơ gửi trong giờ làm việc, When đến hạn, Then được tiếp nhận và phân loại trong < 30 phút.
+  - Given bảng lãi suất, When hiển thị, Then mỗi dòng ghi tháng áp dụng và ngày cập nhật.
+  - Given hồ sơ đổi trạng thái, When A8 cập nhật, Then Partner nhận thông báo.
 - **Truy vết:** F-36
-#### FR-35 Tin tức, Wiki, thuật ngữ, video
-- Bài viết có tác giả, thời gian đọc, chuyên mục; trang tác giả & tiêu chuẩn biên tập (E-E-A-T); từ điển thuật ngữ theo luật hiện hành; mục video nhà đất.
+
+#### FR-32 Công cụ vay mua nhà & định giá cầm cố
+- **Actor:** A1, A6
+- **Tiền điều kiện:** không.
+- **Luồng chính:** nhập thu nhập, nợ hiện có, lãi suất, kỳ hạn → hệ thống tính khả năng mua tối đa, DTI trước/sau vay, lịch trả góp (dư nợ giảm dần/trả đều); định giá: nhập vị trí, diện tích → ước tính giá trị theo giá rao/m² khu vực ±10% và hạn mức vay theo ngân hàng.
+- **Tiêu chí chấp nhận:**
+  - Given DTI sau vay > 50%, When tính xong, Then kết quả được đánh dấu cảnh báo.
+  - Given vay 1 tỷ, lãi 10%/năm, 12 tháng, trả đều, When tính, Then tổng gốc trong lịch trả bằng đúng 1 tỷ (sai số làm tròn ≤ 1.000đ).
+  - Given mọi kết quả, When hiển thị, Then kèm tuyên bố "chỉ mang tính tham khảo" (C-09).
 - **Truy vết:** F-37, F-38
 
-### 3.9 Module M9 — Tương tác
-#### FR-36 Trò chơi đoán giá
-- 5 câu × 20s; điểm: sai lệch ≤5% → 100, ≤10% → 80, ≤20% → 60, ≤35% → 40, ≤50% → 20, >50% → 0; 5 lượt tính điểm/ngày; Top 3 tháng (≥ 1.000 điểm) nhận 200/100/50 points.
-- **AC:** Given top 3 nhưng < 1.000 điểm, Then không nhận thưởng; giá lấy từ tin bán công khai thật.
-- **Truy vết:** F-39, F-18
-#### FR-37 Tử vi & phong thuỷ AI
-- Điểm phong thuỷ theo mệnh trạch & hướng nhà, xem ngày tốt (xem nhà, đặt cọc, ký HĐ, vay, nhập trạch), tarot, cung hoàng đạo, thần số học.
+### 3.8 M8 — Công cụ pháp lý, thuế & đầu tư
+
+#### FR-33 Tính thuế, chi phí giao dịch & chuyển mục đích
+- **Actor:** A1, A2, A6
+- **Tiền điều kiện:** không.
+- **Luồng chính:** nhập giá giao dịch → tính TNCN 2%, trước bạ 0,5%, công chứng ~0,1%, đăng bộ, tách phần bên bán/bên mua; hoặc nhập thông số thửa đất → ước tính tiền sử dụng đất, trước bạ, phí thẩm định/đo đạc/cấp giấy theo NĐ 103/2024. Có tiện ích Chrome/Firefox.
+- **Tiêu chí chấp nhận:**
+  - Given giá 5 tỷ, When tính, Then TNCN = 100 triệu (bên bán) và trước bạ = 25 triệu (bên mua).
+  - Given mọi kết quả, When hiển thị, Then ghi căn cứ văn bản (C-10) và tuyên bố tham khảo (C-09).
+- **Truy vết:** F-39, F-41
+
+#### FR-34 Bảng giá đất nhà nước
+- **Actor:** A1, A6
+- **Tiền điều kiện:** không.
+- **Luồng chính:** chọn tỉnh → huyện → xã → nhóm đất → tên đường → hiển thị đơn giá UBND kèm số quyết định, ngày hiệu lực, link văn bản gốc.
+- **Tiêu chí chấp nhận:**
+  - Given tỉnh chưa có dữ liệu, When chọn, Then hiện rõ "chưa có dữ liệu", không hiện 0đ.
+  - Given một đơn giá, When hiển thị, Then luôn kèm số quyết định và ngày hiệu lực.
 - **Truy vết:** F-40
 
-### 3.10 Module M10 — Tài khoản & Hỗ trợ
-| FR | Mô tả | Truy vết |
-|---|---|---|
-| FR-38 | Đăng nhập bằng SĐT + OTP; callbackUrl quay lại trang trước | F-41 |
-| FR-39 | Tin nhắn giữa người mua và người đăng | F-41 |
-| FR-40 | Xoá tài khoản tự phục vụ trong app (Tài khoản → Cài đặt tài khoản → Xoá), xoá/ẩn danh dữ liệu cá nhân | F-42 |
-| FR-41 | Trung tâm trợ giúp, tiếp nhận phản ánh, cơ chế giải quyết tranh chấp | F-43 |
-| FR-42 | App iOS/Android có cùng chức năng cốt lõi (tìm, đăng tin, video, bản đồ, tài khoản) | F-44 |
+#### FR-35 Check quy hoạch (Won't trong đợt này)
+- **Actor:** A1, A6
+- **Tiền điều kiện:** —
+- **Luồng chính:** giữ trạng thái "Sắp ra mắt"; người dùng đăng ký nhận thông báo khi ra mắt [ASSUMPTION].
+- **Tiêu chí chấp nhận:**
+  - Given người dùng mở công cụ, When trang hiển thị, Then thấy nhãn "Sắp ra mắt" và không có kết quả quy hoạch giả lập.
+- **Truy vết:** F-42
 
-### 3.11 Module M11 — AI Agent Platform
-#### FR-43 MCP server
-- Streamable HTTP JSON-RPC 2.0 tại `/mcp`, không cần auth; `initialize → tools/list → tools/call`; tools: `search_listings`, `compare_listings`, `read_page`, `search_projects`, `search_agents`, `request_contact`. Discovery qua `/.well-known/mcp.json`, server-card, agent-skills.
-- **Truy vết:** F-45
-#### FR-44 Agent REST API
-| Endpoint | Tham số chính | Rate limit |
-|---|---|---|
-| GET /api/agent/search | query, location, type, min/maxPrice, min/maxArea, bedrooms, propertyType, limit ≤ 20, offset, format | 60/phút/IP |
-| GET /api/agent/compare | urls (2–5) | 30/phút/IP |
-| GET /api/agent/projects | query, location, unitType, saleStatus, min/maxUnitPrice | 60/phút/IP |
-| GET /api/agent/agents | query, area, focusMarket, verifiedOnly | 60/phút/IP |
-| POST /api/agent/contact | name*, phone*, listing, intent, preferredTime, email, message | 10/phút/IP |
-| GET /api/markdown | path* | 30/phút/IP |
-- **AC:** vượt giới hạn → HTTP 429 + `Retry-After`; phản hồi thành công có `X-RateLimit-Limit`, `RateLimit-Policy`; contact là thao tác ghi duy nhất.
-- **Truy vết:** F-46
-#### FR-45 Markdown & tài liệu cho LLM
-- Mọi trang trả markdown khi `Accept: text/markdown`; xuất bản llms.txt, llms-full.txt, llms-faq.txt, sitemap-ai.xml, openapi.json (3.1), auth.md.
-- **Truy vết:** F-47, F-48
+#### FR-36 Bộ công cụ đầu tư
+- **Actor:** A1, A6
+- **Tiền điều kiện:** không.
+- **Luồng chính:** chọn công cụ → nhập tham số → nhận kết quả: thuê hay mua (chi phí ròng theo số năm, tăng giá, chi phí cơ hội); lợi nhuận (gross/net yield, dòng tiền, hoàn vốn; flip ROI, ROI quy năm); hiệu quả đầu tư (BĐS/ngân hàng/chứng khoán/vàng; farmstay); mua hay chờ (điểm 0–100: đà tăng giá 40, lãi vay 40, DTI 20).
+- **Tiêu chí chấp nhận:**
+  - Given công cụ "mua hay chờ", When tổng điểm được tính, Then nhãn kết quả là MUA, CÂN NHẮC hoặc CHỜ theo ngưỡng [ASSUMPTION: ≥ 70 / 40–69 / < 40].
+  - Given giá mua 2 tỷ, tiền thuê 10 triệu/tháng, When tính gross yield, Then kết quả = 6,0%.
+  - Given mọi kết quả, When hiển thị, Then kèm tuyên bố tham khảo (C-09).
+- **Truy vết:** F-43, F-44, F-45, F-46
 
----
+#### FR-37 Tử vi & phong thủy AI
+- **Actor:** A1
+- **Tiền điều kiện:** không.
+- **Luồng chính:** nhập năm sinh/mệnh/hướng nhà, SĐT hoặc biển số → AI trả luận giải phong thủy, xem ngày, tử vi, Tarot.
+- **Tiêu chí chấp nhận:**
+  - Given bất kỳ kết quả nào, When hiển thị, Then ghi rõ "mang tính giải trí/tham khảo".
+  - Given SĐT người dùng nhập để xem phong thủy, When xử lý xong, Then không lưu SĐT đó làm lead [ASSUMPTION].
+- **Truy vết:** F-47
+
+### 3.9 M9 — Nội dung & Dữ liệu thị trường
+
+#### FR-38 Báo cáo & chỉ số thị trường
+- **Actor:** A1, A3, A6, A7
+- **Tiền điều kiện:** không (tải bản đầy đủ có thể cần đăng nhập [ASSUMPTION]).
+- **Luồng chính:** chọn kỳ (tháng/quý/6 tháng/năm) và khu vực → xem báo cáo từ tin đăng thật, bảng lệch cung–cầu, MOSO Price Index, Heat Map, chỉ số thanh khoản, báo giá theo quận/phường → tải bản đầy đủ.
+- **Tiêu chí chấp nhận:**
+  - Given số liệu thị trường, When hiển thị, Then ghi thời điểm cập nhật và độ trễ ≤ 1 giờ.
+  - Given khu vực sau sáp nhập 2025, When hiển thị cung, Then ghi chú rằng số cung được đếm theo địa chỉ cũ (C-08).
+- **Truy vết:** F-48, F-49
+
+#### FR-39 Tin tức, thuật ngữ & trung tâm trợ giúp
+- **Actor:** A1, A2, A3
+- **Tiền điều kiện:** không.
+- **Luồng chính:** đọc tin theo chuyên mục kèm trang tác giả; tra từ điển thuật ngữ theo luật 2023–2024; tìm bài trợ giúp theo chủ đề hoặc gọi hotline 1900 252 307.
+- **Tiêu chí chấp nhận:**
+  - Given một bài viết, When hiển thị, Then có tác giả, ngày đăng/cập nhật (E-E-A-T).
+  - Given một thuật ngữ, When hiển thị, Then dẫn điều luật nguồn.
+- **Truy vết:** F-50, F-51, F-52
+
+### 3.10 M10 — Tài khoản & Ứng dụng
+
+#### FR-40 Đăng nhập, hồ sơ, xoá tài khoản & quyền riêng tư
+- **Actor:** A1–A5
+- **Tiền điều kiện:** —
+- **Luồng chính:** đăng nhập (bắt buộc cho đăng tin, đăng ký môi giới, tải ảnh lên công cụ) → quản lý hồ sơ (ảnh, email, Facebook), người theo dõi → xoá tài khoản: Tài khoản → Cài đặt tài khoản → Xoá (3 bước).
+- **Tiêu chí chấp nhận:**
+  - Given người dùng xoá tài khoản, When xác nhận bước 3, Then hoàn tất trong < 1 phút; tin đang hiển thị bị gỡ; dữ liệu cá nhân xử lý theo NFR-07.
+  - Given khách chưa đăng nhập bấm "Đăng tin", When thao tác, Then được chuyển tới đăng nhập.
+  - Given thu thập dữ liệu (họ tên, SĐT, email, MST, giấy tờ), When người dùng nhập, Then có liên kết tới chính sách bảo mật.
+- **Truy vết:** F-53, F-54, F-56
+
+#### FR-41 Ứng dụng di động iOS/Android
+- **Actor:** A1–A5
+- **Tiền điều kiện:** cài từ App Store/Google Play (có QR trên web).
+- **Luồng chính:** điều hướng qua 5 tab: Tìm nhà, Video, Bản đồ, Đăng tin, Tài khoản.
+- **Tiêu chí chấp nhận:**
+  - Given người dùng đăng nhập trên app, When mở web cùng tài khoản, Then thấy cùng tin đã lưu, ví point, tin của tôi.
+  - Given trang /tai-ung-dung mở trên mobile, When bấm tải, Then chuyển đúng store theo hệ điều hành.
+- **Truy vết:** F-55
+
+### 3.11 M11 — Nền tảng AI Agent
+
+#### FR-42 MCP server
+- **Actor:** A7
+- **Tiền điều kiện:** không cần xác thực (chờ Q-10).
+- **Luồng chính:** agent kết nối `/mcp` (Streamable HTTP, JSON-RPC 2.0) → liệt kê tool → gọi search_listings, compare_listings, read_page, search_projects, search_agents, request_contact.
+- **Tiêu chí chấp nhận:**
+  - Given agent gửi `tools/list`, When server trả lời, Then đủ 6 tool kèm JSON schema tham số.
+  - Given tool gọi tới tin bật Ẩn số nhà, When trả kết quả, Then không có số nhà (FR-18).
+  - Given vượt rate limit, When gọi tiếp, Then trả lỗi kèm thời gian thử lại (C-05).
+- **Truy vết:** F-57
+
+#### FR-43 API tra cứu & so sánh tin, dự án, môi giới
+- **Actor:** A7
+- **Tiền điều kiện:** không.
+- **Luồng chính:** GET `/api/agent/search` (query, location, type, giá, diện tích, PN, propertyType; limit ≤ 20) · `/api/agent/compare` (2–5 tin) · `/api/agent/projects` (unitType, saleStatus, giá tổng căn) · tra môi giới (khu vực, focusMarket, verifiedOnly; top 50 theo MOSO Score); trả JSON hoặc markdown.
+- **Tiêu chí chấp nhận:**
+  - Given `limit=50`, When gọi search, Then kết quả trả tối đa 20 bản ghi.
+  - Given compare với 1 hoặc 6 tin, When gọi, Then trả HTTP 400 kèm thông báo.
+  - Given location dùng tên cũ hoặc mới (sáp nhập 2025), When gọi, Then cả hai đều khớp (C-08).
+  - Given compare, When tính giá/m², Then chia theo diện tích **đất** (C-07).
+  - Given vượt 60 req/phút/IP (search/projects/agents) hoặc 30 (compare), When gọi tiếp, Then trả HTTP 429 + `Retry-After`.
+- **Truy vết:** F-58, F-59, F-60
+
+#### FR-44 API yêu cầu liên hệ cho agent
+- **Actor:** A7, A8
+- **Tiền điều kiện:** người dùng thật đồng ý để lại tên + SĐT (C-06).
+- **Luồng chính:** agent gọi `request_contact` / `/api/agent/contact` với tên, SĐT, tin, intent → tạo lead chờ xử lý (như FR-10) → trả mã lead.
+- **Tiêu chí chấp nhận:**
+  - Given cùng SĐT + tin trong 24h, When gọi lại, Then trả `duplicated: true` và không tạo lead mới.
+  - Given gọi thành công, When phản hồi, Then thông điệp không chứa ngữ nghĩa "đã chốt lịch".
+  - Given vượt 10 req/phút/IP, When gọi tiếp, Then trả HTTP 429 + `Retry-After`.
+- **Truy vết:** F-13, F-57
+
+#### FR-45 Đọc trang dạng markdown & khai báo cho agent
+- **Actor:** A7
+- **Tiền điều kiện:** không.
+- **Luồng chính:** agent gọi `/api/markdown?path=…` hoặc gửi `Accept: text/markdown` tới bất kỳ trang nào → nhận markdown; đọc llms.txt, llms-full.txt, llms-faq.txt, agent-skills index, WebMCP manifest, OpenAPI 3.1, auth.md, sitemap-ai.xml.
+- **Tiêu chí chấp nhận:**
+  - Given `Accept: text/markdown`, When gọi một trang danh sách, Then trả `Content-Type: text/markdown` và kích thước ≤ 10% bản HTML.
+  - Given OpenAPI 3.1, When kiểm bằng trình validator chuẩn, Then hợp lệ và mô tả mọi endpoint của FR-43/FR-44.
+- **Truy vết:** F-61, F-62
 
 ## 4. Yêu cầu phi chức năng
-| ID | Nhóm | Yêu cầu | Đo lường |
+
+Mọi mục tiêu đều là **[ASSUMPTION]** cho đến khi có đo đạc thực tế, trừ các mục trích ràng buộc của brief.
+
+| ID | Nhóm | Yêu cầu | Mục tiêu đo được | Áp dụng |
+|---|---|---|---|---|
+| NFR-01 | Hiệu năng | Thời gian phản hồi tìm kiếm/danh sách/bản đồ | p95 ≤ 800 ms phía server; LCP trang danh sách ≤ 2,5 s trên 4G | FR-01–FR-07 |
+| NFR-02 | Hiệu năng | Độ trễ tin nhắn trong ứng dụng | p95 ≤ 2 s đầu-cuối | FR-09 |
+| NFR-03 | Hiệu năng | AI soạn tin | p95 ≤ 30 s; tỷ lệ lỗi ≤ 2% | FR-12 |
+| NFR-04 | Hiệu năng | API agent | p95 ≤ 1 s với limit=20; markdown ≤ 10% kích thước HTML | FR-42–FR-45 |
+| NFR-05 | Khả dụng | Uptime web, app API, API agent | ≥ 99,5%/tháng; RPO ≤ 1 h, RTO ≤ 4 h | Toàn hệ thống |
+| NFR-06 | Toàn vẹn dữ liệu | Tính đúng giá/m² và công thức công cụ | 100% test vectors đạt; giá/m² = giá ÷ diện tích đất | FR-01, FR-32, FR-33, FR-36, FR-43 |
+| NFR-07 | Bảo mật & riêng tư | Dữ liệu cá nhân, giấy tờ pháp lý | TLS 1.2+; mã hoá khi lưu trữ (AES-256) giấy tờ pháp lý; xoá/ẩn danh dữ liệu cá nhân ≤ 30 ngày sau khi xoá tài khoản, trừ dữ liệu luật yêu cầu lưu (C-11) | FR-17, FR-23, FR-40 |
+| NFR-08 | Chống lạm dụng | Rate limit & spam lead | Đúng C-05 (60/30/10 req/phút/IP, HTTP 429 + Retry-After); lead trùng 24h = 0; lead spam ≤ 5% tổng lead qua API | FR-10, FR-42–FR-44 |
+| NFR-09 | Bảo vệ "Địa Chỉ Thật" | Không lộ số nhà khi bật Ẩn số nhà | 0 rò rỉ qua mọi kênh (web, app, SEO, bản đồ, API, MCP, markdown), kiểm bằng test tự động mỗi bản phát hành | FR-03, FR-18, FR-42–FR-45 |
+| NFR-10 | Chất lượng dữ liệu | Tỷ lệ tin xác thực & trùng lặp | ≥ 95% tin hiển thị có badge; tin trùng ≤ 2%; SLA duyệt xác thực ≤ 24 h làm việc | FR-17 |
+| NFR-11 | Tài chính | Tính đúng giao dịch point | 0 sai lệch số dư khi đối soát ngày; callback idempotent | FR-13, FR-14, FR-20–FR-22 |
+| NFR-12 | Pháp lý | Tuyên bố miễn trừ & căn cứ | 100% màn hình kết quả công cụ có tuyên bố C-09; 100% đơn giá đất có số quyết định | FR-32–FR-37 |
+| NFR-13 | Khả năng tiếp cận & i18n | WCAG, ngôn ngữ | WCAG 2.1 AA cho luồng tìm, xem, liên hệ, đăng tin; vi-VN đầy đủ, en cho trang chính (C-12) | Web, app |
+| NFR-14 | Tương thích | Nền tảng hỗ trợ | 2 phiên bản mới nhất của Chrome/Safari/Firefox/Edge; iOS ≥ 16, Android ≥ 10 | FR-41 |
+
+## 5. Epics & User Stories
+
+Ưu tiên MoSCoW. **[ASSUMPTION]** MVP/phát hành đầu = toàn bộ Must.
+
+| Epic | Tên | MoSCoW | FR |
 |---|---|---|---|
-| NFR-01 | Hiệu năng | Trang danh sách & chi tiết SSR, LCP < 2,5s trên 4G | Core Web Vitals P75 |
-| NFR-02 | Hiệu năng | Tìm kiếm API P95 < 500ms với 50k+ tin | APM |
-| NFR-03 | Hiệu năng | AI sinh tin ≤ 30s P95; xoá watermark ≤ 60s cho lô 20 ảnh | log thời gian |
-| NFR-04 | Mở rộng | Hỗ trợ ≥ 100k tin hoạt động và sitemap phân theo tháng | load test |
-| NFR-05 | Bảo mật | Ẩn số nhà không rò rỉ qua bất kỳ kênh nào (HTML, JSON, markdown, MCP, ảnh, sitemap) | pentest |
-| NFR-06 | Bảo mật | OTP giới hạn tần suất; chống brute-force; HTTPS toàn site | |
-| NFR-07 | Bảo mật | Rate limit theo IP trên mọi endpoint agent (FR-44) | |
-| NFR-08 | Quyền riêng tư | Tuân thủ NĐ 13/2023; chỉ thu thập dữ liệu trong chính sách bảo mật; xoá tài khoản xoá dữ liệu cá nhân | audit |
-| NFR-09 | Toàn vẹn tài chính | Giao dịch points nguyên tử, idempotent, có sổ cái; không âm số dư | đối soát hằng ngày |
-| NFR-10 | SEO / GEO | URL thân thiện tiếng Việt không dấu, structured data, sitemap index, robots cho phép bot AI; landing theo đơn vị hành chính | Search Console |
-| NFR-11 | Khả dụng | Uptime ≥ 99,5%/tháng | status monitor |
-| NFR-12 | Khả năng truy cập | Link "Bỏ qua tới nội dung", WCAG 2.1 AA | axe audit |
-| NFR-13 | Độ chính xác nội dung | Công cụ thuế/pháp lý ghi căn cứ & ngày cập nhật; không hiển thị số ước lượng khi thiếu dữ liệu nguồn | review biên tập |
-| NFR-14 | Đa nền tảng | Web responsive + app iOS/Android dùng chung backend | |
-| NFR-15 | Quan sát | Log & metric cho lead, points, xác thực, API agent | dashboard |
+| E1 | Tìm kiếm & khám phá có xác thực | **Must** | FR-01–FR-08 |
+| E2 | Liên hệ, lịch xem & hỗ trợ giao dịch | **Must** | FR-09–FR-11 |
+| E3 | Đăng tin & quản lý tin | **Must** | FR-12–FR-16 |
+| E4 | Xác thực "3 THẬT" & bảo vệ tin | **Must** | FR-17–FR-19 |
+| E5 | MOSO Points & thanh toán | **Must** | FR-20, FR-21 |
+| E11 | Tài khoản & ứng dụng di động | **Must** | FR-40, FR-41 |
+| E6 | Hệ sinh thái môi giới & đối tác | **Should** | FR-23–FR-30 |
+| E7 | Tài chính & vay mua nhà | **Should** | FR-31, FR-32 |
+| E10 | Nền tảng AI Agent (API/MCP) | **Should** | FR-42–FR-45 |
+| E8 | Công cụ pháp lý, thuế & đầu tư | **Could** | FR-33, FR-34, FR-36, FR-37 |
+| E9 | Nội dung, dữ liệu thị trường & tương tác | **Could** | FR-22, FR-38, FR-39 |
+| — | Check quy hoạch | **Won't** (đợt này) | FR-35 |
 
----
+Lưu ý: E7 và E10 xếp Should dù là điểm khác biệt chiến lược (brief §3). Lý do: vòng lõi marketplace phải chạy trước. **[ASSUMPTION]** PM có thể nâng E10 lên Must nếu kênh agent là mục tiêu tăng trưởng chính (Q-12).
 
-## 5. Epics & User Stories (MoSCoW)
-| Epic | User story | MoSCoW |
-|---|---|---|
-| E1 Tìm nhà thật | Là người mua, tôi muốn lọc tin xác thực theo khu vực & giá để không mất thời gian với tin ảo | Must |
-| | Là người mua, tôi muốn vẽ vùng trên bản đồ để tìm nhà quanh nơi làm việc | Should |
-| | Là người mua, tôi muốn gõ câu tự nhiên để AI hiểu nhu cầu | Should |
-| E2 Đăng tin nhanh | Là chủ nhà, tôi muốn AI viết tin trong 30 giây | Must |
-| | Là chủ nhà, tôi muốn xoá watermark ảnh cũ trước khi đăng | Could |
-| | Là chủ nhà, tôi muốn đẩy tin 7 ngày để bán nhanh | Should |
-| E3 Niềm tin "3 THẬT" | Là chủ nhà, tôi muốn xác thực tin để được badge và giảm phí | Must |
-| | Là môi giới, tôi muốn ẩn số nhà để không bị cướp khách | Must |
-| E4 Kinh tế points | Là người dùng, tôi muốn kiếm points miễn phí qua điểm danh/nhiệm vụ | Should |
-| | Là người đăng, tôi muốn tin tự gia hạn khi hết 30 ngày | Must |
-| E5 Hệ sinh thái môi giới | Là môi giới, tôi muốn có hồ sơ xếp hạng trong danh bạ | Must |
-| | Là môi giới, tôi muốn nhận nguồn ký gửi chính chủ trong khu vực | Should |
-| | Là DN, tôi muốn đồng bộ giỏ hàng có sẵn lên MOSO miễn phí | Should |
-| | Là CTV, tôi muốn giới thiệu nguồn và nhận e-voucher | Could |
-| E6 Tài chính mua nhà | Là người mua, tôi muốn biết giá nhà tối đa mình mua được và so sánh lãi suất | Must |
-| E7 Công cụ & dữ liệu | Là nhà đầu tư, tôi muốn tính thuế phí, ROI và đọc báo cáo thị trường | Should |
-| | Là người mua, tôi muốn check quy hoạch | Won't (now) |
-| E8 Engagement | Là người dùng, tôi muốn chơi đoán giá để luyện cảm giác giá thị trường | Could |
-| E9 AI-native | Là AI agent, tôi muốn tìm & so sánh tin qua MCP để trả lời người dùng | Should |
+### E1 — Tìm kiếm & khám phá có xác thực (Must)
+- **US-1.1** Là người mua, tôi muốn lọc theo loại hình, khu vực, giá và chỉ xem tin xác thực để không mất thời gian với tin ảo. *(FR-01)*
+- **US-1.2** Là người mua, tôi muốn gõ một câu tự nhiên và thấy bộ lọc AI đã hiểu để tìm nhanh hơn. *(FR-04)*
+- **US-1.3** Là người mua, tôi muốn xem giá trên bản đồ và vẽ vùng để tìm quanh nơi làm việc. *(FR-03)*
+- **US-1.4** Là người mua, tôi muốn lưu tìm kiếm và nhận thông báo để không bỏ lỡ tin mới. *(FR-05)*
+- **US-1.5** Là nhà đầu tư, tôi muốn so sánh dự án và xem nguồn nhà đấu giá để chọn cơ hội tốt. *(FR-07, FR-08)*
+- **US-1.6** Là người mua, tôi muốn xem video tin đăng để đánh giá nhà trước khi đi xem. *(FR-06)*
+- **US-1.7** Là MOSO, tôi muốn có trang danh mục SEO theo loại hình/khu vực để thu hút lưu lượng tự nhiên. *(FR-02)*
 
----
+### E2 — Liên hệ, lịch xem & hỗ trợ giao dịch (Must)
+- **US-2.1** Là người mua, tôi muốn đặt lịch xem nhà và được chuyên viên gọi xác nhận. *(FR-10)*
+- **US-2.2** Là người mua, tôi muốn nhắn tin với người đăng ngay trong app. *(FR-09)*
+- **US-2.3** Là người mua, tôi muốn có checklist pháp lý và mẫu hợp đồng để giao dịch an toàn. *(FR-11)*
+
+### E3 — Đăng tin & quản lý tin (Must)
+- **US-3.1** Là chủ nhà, tôi muốn AI viết tin trong 30 giây để đăng nhanh. *(FR-12)*
+- **US-3.2** Là chủ nhà, tôi muốn sửa giá, đánh dấu đã bán và để tin tự gia hạn. *(FR-13)*
+- **US-3.3** Là môi giới, tôi muốn đẩy tin để tăng hiển thị. *(FR-14)*
+- **US-3.4** Là môi giới, tôi muốn xoá watermark ảnh để đăng ảnh sạch. *(FR-15)*
+- **US-3.5** Là chủ nhà, tôi muốn xem lượt xem và lượt quan tâm của tin. *(FR-16)*
+
+### E4 — Xác thực "3 THẬT" & bảo vệ tin (Must)
+- **US-4.1** Là chủ nhà, tôi muốn được xác thực tin để có badge và trả ít point hơn. *(FR-17)*
+- **US-4.2** Là chủ nhà, tôi muốn ẩn số nhà để tránh bị sao chép và cướp khách. *(FR-18)*
+- **US-4.3** Là biên tập viên, tôi muốn mọi nội dung AI soạn được duyệt trước khi xuất bản. *(FR-19)*
+
+### E5 — MOSO Points & thanh toán (Must)
+- **US-5.1** Là môi giới, tôi muốn nạp point và xem lịch sử trừ point minh bạch. *(FR-20)*
+- **US-5.2** Là người dùng, tôi muốn kiếm point miễn phí qua nhiệm vụ và điểm danh. *(FR-21)*
+
+### E11 — Tài khoản & ứng dụng di động (Must)
+- **US-11.1** Là người dùng, tôi muốn đăng nhập và quản lý hồ sơ; xoá tài khoản trong dưới 1 phút. *(FR-40)*
+- **US-11.2** Là người dùng, tôi muốn dùng app với dữ liệu đồng bộ cùng web. *(FR-41)*
+
+### E6 — Hệ sinh thái môi giới & đối tác (Should)
+- **US-6.1** Là môi giới, tôi muốn đăng ký bằng SĐT + OTP và được duyệt quyền nâng cao. *(FR-23)*
+- **US-6.2** Là người mua, tôi muốn tìm môi giới đã xác thực theo MOSO Score. *(FR-24)*
+- **US-6.3** Là môi giới, tôi muốn nhận bán tin ký gửi chính chủ. *(FR-25)*
+- **US-6.4** Là doanh nghiệp, tôi muốn có website miễn phí và đồng bộ giỏ hàng lên MOSO. *(FR-26)*
+- **US-6.5** Là Partner, tôi muốn theo dõi hoa hồng realtime và đăng ký Workshop. *(FR-27)*
+- **US-6.6** Là CTV, tôi muốn gửi nguồn và nhận e-voucher. *(FR-28)*
+- **US-6.7** Là môi giới, tôi muốn học và xác thực chứng chỉ để tăng điểm. *(FR-29)*
+- **US-6.8** Là môi giới, tôi muốn CRM và AI gợi ý khách tiềm năng. *(FR-30)*
+
+### E7 — Tài chính & vay mua nhà (Should)
+- **US-7.1** Là Partner, tôi muốn gửi hồ sơ vay cho khách và theo dõi real-time, phí 0đ. *(FR-31)*
+- **US-7.2** Là người mua, tôi muốn biết khả năng vay, DTI và lịch trả góp. *(FR-32)*
+
+### E10 — Nền tảng AI Agent (Should)
+- **US-10.1** Là AI agent, tôi muốn tìm và so sánh tin qua MCP/API có schema rõ ràng. *(FR-42, FR-43)*
+- **US-10.2** Là AI agent, tôi muốn gửi yêu cầu xem nhà thay người dùng khi họ đồng ý. *(FR-44)*
+- **US-10.3** Là AI agent, tôi muốn đọc trang dạng markdown để tiết kiệm token. *(FR-45)*
+
+### E8 — Công cụ pháp lý, thuế & đầu tư (Could)
+- **US-8.1** Là người bán/mua, tôi muốn biết thuế phí từng bên. *(FR-33)*
+- **US-8.2** Là người mua, tôi muốn tra bảng giá đất nhà nước kèm văn bản gốc. *(FR-34)*
+- **US-8.3** Là nhà đầu tư, tôi muốn tính yield, ROI và có gợi ý mua hay chờ. *(FR-36)*
+- **US-8.4** Là người mua, tôi muốn xem phong thủy nhà theo mệnh. *(FR-37)*
+
+### E9 — Nội dung, dữ liệu thị trường & tương tác (Could)
+- **US-9.1** Là nhà đầu tư, tôi muốn xem báo cáo, MPI và Heat Map theo khu vực. *(FR-38)*
+- **US-9.2** Là người dùng, tôi muốn đọc tin tức, tra thuật ngữ, tìm trợ giúp. *(FR-39)*
+- **US-9.3** Là người dùng, tôi muốn chơi đoán giá để học giá thị trường và nhận point. *(FR-22)*
 
 ## 6. Ma trận truy vết
-| Module | Feature | FR | NFR | Epic |
-|---|---|---|---|---|
-| M1 Tìm kiếm | F-01..F-09 | FR-01..FR-07 | NFR-01,02,10 | E1 |
-| M2 Đăng tin | F-10..F-14 | FR-08..FR-12 | NFR-03 | E2 |
-| M3 Xác thực | F-15, F-16 | FR-13, FR-14 | NFR-05 | E3 |
-| M4 Points | F-17, F-18 | FR-15, FR-16 | NFR-09 | E4 |
-| M5 Môi giới | F-19..F-24 | FR-17..FR-22 | NFR-06 | E5 |
-| M6 Tài chính | F-25..F-27 | FR-23..FR-25 | NFR-13 | E6 |
-| M7 Công cụ | F-28..F-35 | FR-26..FR-33 | NFR-13 | E7 |
-| M8 Nội dung | F-36..F-38 | FR-34, FR-35 | NFR-10 | E7 |
-| M9 Tương tác | F-39, F-40 | FR-36, FR-37 | — | E8 |
-| M10 Tài khoản | F-41..F-44 | FR-38..FR-42 | NFR-06,08,12,14 | — |
-| M11 Agent | F-45..F-48 | FR-43..FR-45 | NFR-07 | E9 |
+
+| Feature (brief) | FR | Epic |
+|---|---|---|
+| F-01, F-02 | FR-01 | E1 |
+| F-03 | FR-02 | E1 |
+| F-04 | FR-03 | E1 |
+| F-05 | FR-04 | E1 |
+| F-06 | FR-05 | E1 |
+| F-07 | FR-06 | E1 |
+| F-08, F-09 | FR-07 | E1 |
+| F-10 | FR-08 | E1 |
+| F-11 | FR-09 | E2 |
+| F-12 | FR-10 | E2 |
+| F-13 | FR-10, FR-44 | E2, E10 |
+| F-14 | FR-11 | E2 |
+| F-15, F-16 | FR-12 | E3 |
+| F-17 | FR-13 | E3 |
+| F-18 | FR-14 | E3 |
+| F-19 | FR-15 | E3 |
+| F-20 | FR-16 | E3 |
+| F-21 | FR-17 | E4 |
+| F-22 | FR-18, FR-03 | E4, E1 |
+| F-23 | FR-19 | E4 |
+| F-24 | FR-20, FR-13 | E5, E3 |
+| F-25 | FR-21 | E5 |
+| F-26 | FR-22 | E9 |
+| F-27 | FR-23 | E6 |
+| F-28 | FR-24 | E6 |
+| F-29 | FR-25 | E6 |
+| F-30, F-31 | FR-26 | E6 |
+| F-32 | FR-27 | E6 |
+| F-33 | FR-28 | E6 |
+| F-34 | FR-29 | E6 |
+| F-35 | FR-30 | E6 |
+| F-36 | FR-31 | E7 |
+| F-37, F-38 | FR-32 | E7 |
+| F-39, F-41 | FR-33 | E8 |
+| F-40 | FR-34 | E8 |
+| F-42 | FR-35 | Won't |
+| F-43, F-44, F-45, F-46 | FR-36 | E8 |
+| F-47 | FR-37 | E8 |
+| F-48, F-49 | FR-38 | E9 |
+| F-50, F-51, F-52 | FR-39 | E9 |
+| F-53 | FR-40, FR-23 | E11, E6 |
+| F-54, F-56 | FR-40 | E11 |
+| F-55 | FR-41, FR-06 | E11, E1 |
+| F-57 | FR-42, FR-44 | E10 |
+| F-58 | FR-43, FR-04 | E10, E1 |
+| F-59, F-60 | FR-43 | E10 |
+| F-61, F-62 | FR-45 | E10 |
+
+Độ phủ: 62/62 feature của brief được ít nhất 1 FR truy vết; 45/45 FR truy vết về ít nhất 1 feature.
 
 ## 7. Câu hỏi mở
-1. Cổng thanh toán nạp points (D-02)?
-2. Điều kiện "khách có nhu cầu thật" để mở Ẩn số nhà (FR-14)?
-3. Xác thực tin do người hay AI, tỷ lệ tự động hoá? (FR-13)
-4. Mô hình doanh thu từ lead vay ngân hàng & hoa hồng Partner — có cần module đối soát hoa hồng?
+
+| # | Câu hỏi | Ảnh hưởng | Chặn giai đoạn? |
+|---|---|---|---|
+| Q-01 | "Xác thực 100%" so với việc vẫn đăng được tin chưa xác thực (8 MP); báo cáo ghi 91% | FR-17, NFR-10 | **Có** — kiến trúc luồng kiểm duyệt |
+| Q-02 | Số liệu quy mô không thống nhất (tin, môi giới, người dùng) | Baseline chỉ số PRD §3 | Không |
+| Q-03 | Quà point cho môi giới/Partner: +100, 200 hay tới 1.000? | FR-21, FR-26 | Không |
+| Q-04 | Vay thế chấp dành cho Partner hay cả người mua cuối; 1 hay 13+ ngân hàng? | FR-31 | Không |
+| Q-05 | Ẩn số nhà mặc định hay add-on 5 point; "khách đã xác thực" được xác thực bằng gì? | FR-18, NFR-09 | **Có** — UX & kiến trúc quyền xem |
+| Q-06 | Có AVM thực sự hay chỉ giá rao/m² ±10%? | FR-32 | Không |
+| Q-07 | CRM, AI gợi ý khách, analytics, nhắc lịch đã có trên sản phẩm chưa? | FR-16, FR-30, FR-10 | Không |
+| Q-08 | Cổng thanh toán nạp point là gì; có hoàn tiền không? | FR-20, NFR-11 | Không (chặn khi triển khai E5) |
+| Q-09 | Công thức đầy đủ của MOSO Score | FR-24 | Không |
+| Q-10 | Xác thực agent qua auth.md so với MCP "không cần xác thực" | FR-42, FR-44, NFR-08 | **Có** — kiến trúc bảo mật lớp agent |
+| Q-11 | Bảng giá dịch vụ nâng cao có phí | FR-11 | Không |
+| Q-12 | Mô hình doanh thu chính (phí tin, hoa hồng, hoa hồng vay, Signature) | MoSCoW E7/E10 | Không |
+| Q-13 | Ngưỡng điểm MUA/CÂN NHẮC/CHỜ của công cụ "mua hay chờ" [ASSUMPTION ≥70/40–69/<40] | FR-36 | Không |
+| Q-14 | Bán kính làm mờ vị trí ghim khi bật Ẩn số nhà [ASSUMPTION ≥ 200 m] | FR-03, FR-18 | Không |
+| Q-15 | Thời hạn lưu trữ dữ liệu cá nhân sau khi xoá tài khoản theo luật VN [ASSUMPTION 30 ngày] | NFR-07 | Không |
+| Q-16 | Kênh thông báo cho lưu tìm kiếm/nhắc lịch (push, SMS, email, Zalo?) | FR-05, FR-10 | Không |

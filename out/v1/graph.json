@@ -1,0 +1,1429 @@
+{
+ "nodes": [
+  {
+   "id": "M1",
+   "label": "Tìm kiếm & Khám phá",
+   "type": "module"
+  },
+  {
+   "id": "M2",
+   "label": "Đăng tin",
+   "type": "module"
+  },
+  {
+   "id": "M3",
+   "label": "Xác thực & Bảo vệ (\"3 THẬT\")",
+   "type": "module"
+  },
+  {
+   "id": "M4",
+   "label": "MOSO Points & Thanh toán",
+   "type": "module"
+  },
+  {
+   "id": "M5",
+   "label": "Môi giới & Đối tác",
+   "type": "module"
+  },
+  {
+   "id": "M6",
+   "label": "Tài chính & Vay",
+   "type": "module"
+  },
+  {
+   "id": "M7",
+   "label": "Công cụ BĐS (calculator)",
+   "type": "module"
+  },
+  {
+   "id": "M8",
+   "label": "Dữ liệu thị trường & Nội dung",
+   "type": "module"
+  },
+  {
+   "id": "M9",
+   "label": "Tương tác & Giải trí",
+   "type": "module"
+  },
+  {
+   "id": "M10",
+   "label": "Tài khoản & Hỗ trợ",
+   "type": "module"
+  },
+  {
+   "id": "M11",
+   "label": "AI Agent Platform (máy đọc được)",
+   "type": "module"
+  },
+  {
+   "id": "F-01",
+   "label": "Danh sách mua bán",
+   "type": "feature",
+   "desc": "Lọc theo loại (căn hộ, nhà hẻm, mặt tiền, đất), khu vực, giá; badge \"Tin xác thực\", \"Tin có video\"; xem dạng list/lưới (nguồn: /mua-ban-nha-dat)"
+  },
+  {
+   "id": "F-02",
+   "label": "Danh sách cho thuê",
+   "type": "feature",
+   "desc": "9 loại: phòng trọ, căn hộ, nhà, CHDV, mặt bằng, văn phòng, kho xưởng, đất (nguồn: /cho-thue-nha-dat)"
+  },
+  {
+   "id": "F-03",
+   "label": "Tìm với AI",
+   "type": "feature",
+   "desc": "Tìm kiếm ngôn ngữ tự nhiên (\"Cơ bản\" / \"Tìm với AI\") (nguồn: /)"
+  },
+  {
+   "id": "F-04",
+   "label": "Bản đồ BĐS",
+   "type": "feature",
+   "desc": "Giá trên từng ghim, vẽ vùng để tìm (nguồn: /mua-ban-nha-dat?xem=ban-do)"
+  },
+  {
+   "id": "F-05",
+   "label": "Trang SEO theo khu vực",
+   "type": "feature",
+   "desc": "Landing page theo tỉnh/quận/phường (`/ban-nha-quan-1-...`) (nguồn: /)"
+  },
+  {
+   "id": "F-06",
+   "label": "Chi tiết tin đăng",
+   "type": "feature",
+   "desc": "Ảnh, giá, giá/m², diện tích, tầng, PN/WC, địa chỉ (nguồn: listing pages)"
+  },
+  {
+   "id": "F-07",
+   "label": "Tra cứu & so sánh dự án",
+   "type": "feature",
+   "desc": "Lọc theo pháp lý, tiến độ, chủ đầu tư; so sánh dự án (nguồn: /tim-kiem-du-an, /so-sanh-du-an)"
+  },
+  {
+   "id": "F-08",
+   "label": "Nguồn nhà đặc biệt (MOSO Signature)",
+   "type": "feature",
+   "desc": "BĐS đấu giá, phát mãi từ ngân hàng & Thi Hành Án, rẻ hơn 20–60% (nguồn: /nguon-nha-dac-biet)"
+  },
+  {
+   "id": "F-09",
+   "label": "Yêu cầu xem nhà / tư vấn",
+   "type": "feature",
+   "desc": "Để lại tên + SĐT; chuyên viên gọi lại; chống trùng 24h (nguồn: llms.txt (contact API))"
+  },
+  {
+   "id": "F-10",
+   "label": "Đăng tin bán / cho thuê với AI",
+   "type": "feature",
+   "desc": "AI viết tiêu đề + mô tả trong ~30 giây; form riêng cho bán/thuê (nguồn: /dang-tin, /dang-tin-ban-nha-dat, /dang-tin-cho-thue)"
+  },
+  {
+   "id": "F-11",
+   "label": "Quản lý \"Tin của tôi\"",
+   "type": "feature",
+   "desc": "Sửa, cập nhật giá, đánh dấu đã bán/thuê, ẩn tin, gia hạn tự động (nguồn: /dang-tin-cho-thue, /mine)"
+  },
+  {
+   "id": "F-12",
+   "label": "Đẩy tin",
+   "type": "feature",
+   "desc": "8h (5k), 24h + nhãn Hot (10k), 7 ngày (50k); khu vực hoặc toàn tỉnh; tối đa 3 lượt/tin/ngày (nguồn: /bang-gia-dang-tin)"
+  },
+  {
+   "id": "F-13",
+   "label": "Xoá watermark ảnh bằng AI",
+   "type": "feature",
+   "desc": "≤20 ảnh/lần, ≤10MB, PNG/JPG/WEBP; tô để xoá chỗ sót; versioning; tải ZIP (nguồn: /cong-cu/chinh-anh-bds)"
+  },
+  {
+   "id": "F-14",
+   "label": "Ký gửi / Nhà cần bán nhanh",
+   "type": "feature",
+   "desc": "Chủ nhà ký gửi, môi giới nhận bán hưởng hoa hồng (nguồn: /nha-dat-can-ban-nhanh)"
+  },
+  {
+   "id": "F-15",
+   "label": "Xác thực tin đăng",
+   "type": "feature",
+   "desc": "Kiểm tra ảnh, pháp lý, chính chủ → badge \"xác thực\", giảm phí 8→5 MP (nguồn: llms.txt, /bang-gia-dang-tin)"
+  },
+  {
+   "id": "F-16",
+   "label": "Ẩn số nhà",
+   "type": "feature",
+   "desc": "Che địa chỉ chi tiết, chỉ hiện cho khách có nhu cầu thật đã xác thực; 5 MP/30 ngày (nguồn: /dang-tin, /bang-gia-dang-tin)"
+  },
+  {
+   "id": "F-17",
+   "label": "Ví MOSO Points",
+   "type": "feature",
+   "desc": "1 MP = 1.000đ, đã gồm VAT; gói nạp từ 50.000đ; tự trừ khi gia hạn, thiếu points → ẩn số liên hệ (nguồn: /chinh-sach-moso-points)"
+  },
+  {
+   "id": "F-18",
+   "label": "Kiếm points miễn phí",
+   "type": "feature",
+   "desc": "Quà chào mừng (+30 / +100 môi giới), điểm danh +1/ngày, nhiệm vụ hồ sơ, mốc tin xác thực, mốc follower (nguồn: /chinh-sach-moso-points)"
+  },
+  {
+   "id": "F-19",
+   "label": "Đăng ký môi giới",
+   "type": "feature",
+   "desc": "Tạo tài khoản bằng SĐT + OTP; hồ sơ khu vực hoạt động; admin duyệt quyền nâng cao (nguồn: /register-agent, /dang-ky-moi-gioi)"
+  },
+  {
+   "id": "F-20",
+   "label": "Danh bạ môi giới & MOSO Score",
+   "type": "feature",
+   "desc": "Xếp hạng theo 6 yếu tố (hồ sơ, tin xác thực, review, Partner +10đ, tương tác, chứng chỉ) (nguồn: /danh-ba-moi-gioi-bat-dong-san)"
+  },
+  {
+   "id": "F-21",
+   "label": "MOSO Partner (cá nhân / doanh nghiệp)",
+   "type": "feature",
+   "desc": "Tặng tới 1.000 points, kho hàng ngân hàng, giảm học phí 20/30%; DN được website + quản trị + đồng bộ tin 0đ (nguồn: /moso-partner, /doi-tac-*)"
+  },
+  {
+   "id": "F-22",
+   "label": "Khóa học chứng chỉ môi giới",
+   "type": "feature",
+   "desc": "8 buổi, MOSO × IEM, 1.990K cho Partner (nguồn: /khoa-hoc-chung-chi-moi-gioi)"
+  },
+  {
+   "id": "F-23",
+   "label": "Cộng tác viên giới thiệu",
+   "type": "feature",
+   "desc": "E-voucher 100k/nguồn nhà bán hoặc khách, 10k/nguồn thuê; theo dõi realtime (nguồn: /cong-tac-vien)"
+  },
+  {
+   "id": "F-24",
+   "label": "Workshop / sự kiện",
+   "type": "feature",
+   "desc": "Đăng ký sự kiện đối tác (nguồn: /moso-partner-workshop)"
+  },
+  {
+   "id": "F-25",
+   "label": "Vay thế chấp",
+   "type": "feature",
+   "desc": "So sánh lãi suất 13+ ngân hàng, đăng ký hỗ trợ hồ sơ A-Z (nguồn: /vay-the-chap)"
+  },
+  {
+   "id": "F-26",
+   "label": "Bộ tính vay",
+   "type": "feature",
+   "desc": "Khả năng mua tối đa, DTI (ngưỡng 50%), lịch trả góp (dư nợ giảm dần / trả đều) (nguồn: /cong-cu/vay-mua-nha)"
+  },
+  {
+   "id": "F-27",
+   "label": "Định giá & cầm cố",
+   "type": "feature",
+   "desc": "Giá trị theo giá/m² khu vực ±10%, hạn mức vay từng ngân hàng (nguồn: /cong-cu/dinh-gia-cam-co-bat-dong-san)"
+  },
+  {
+   "id": "F-28",
+   "label": "Thuế & chi phí giao dịch",
+   "type": "feature",
+   "desc": "TNCN 2%, trước bạ 0,5%, công chứng ~0,1%; tách bên mua/bán; tiện ích Chrome/Firefox (nguồn: /cong-cu/tinh-thue-giao-dich-bds)"
+  },
+  {
+   "id": "F-29",
+   "label": "Bảng giá đất nhà nước",
+   "type": "feature",
+   "desc": "Tra theo tỉnh/huyện/xã/đường; báo \"chưa có dữ liệu\" thay vì ước lượng (nguồn: /cong-cu/bang-gia-dat-nha-nuoc)"
+  },
+  {
+   "id": "F-30",
+   "label": "Chuyển mục đích sử dụng đất",
+   "type": "feature",
+   "desc": "Theo NĐ 103/2024; tách 5 khoản chi phí (nguồn: /cong-cu/chuyen-muc-dich-su-dung-dat)"
+  },
+  {
+   "id": "F-31",
+   "label": "Thuê hay mua",
+   "type": "feature",
+   "desc": "Chi phí ròng N năm, chi phí cơ hội (nguồn: /cong-cu/thue-hay-mua-nha)"
+  },
+  {
+   "id": "F-32",
+   "label": "Lợi nhuận đầu tư",
+   "type": "feature",
+   "desc": "Cho thuê (gross/net yield) + flip (ROI quy năm) (nguồn: /cong-cu/loi-nhuan-dau-tu-bds)"
+  },
+  {
+   "id": "F-33",
+   "label": "Hiệu quả đầu tư",
+   "type": "feature",
+   "desc": "So sánh BĐS/ngân hàng/chứng khoán/vàng; ROI farmstay (nguồn: /cong-cu/hieu-qua-dau-tu)"
+  },
+  {
+   "id": "F-34",
+   "label": "Nên mua hay chờ",
+   "type": "feature",
+   "desc": "Điểm 0–100: giá khu vực 40 + lãi suất 40 + DTI 20 → MUA/CÂN NHẮC/CHỜ (nguồn: /cong-cu/nen-mua-nha-hay-cho)"
+  },
+  {
+   "id": "F-35",
+   "label": "Check quy hoạch",
+   "type": "feature",
+   "desc": "*Sắp ra mắt* (nguồn: /cong-cu)"
+  },
+  {
+   "id": "F-36",
+   "label": "Báo cáo thị trường",
+   "type": "feature",
+   "desc": "Theo tháng/quý/năm; lệch cung–cầu theo khu vực; số liệu cập nhật mỗi giờ (nguồn: /bao-cao-thi-truong-bds)"
+  },
+  {
+   "id": "F-37",
+   "label": "Tin tức & Wiki BĐS",
+   "type": "feature",
+   "desc": "Bài viết, thuật ngữ pháp lý (21 thuật ngữ), tiêu chuẩn biên tập, trang tác giả (E-E-A-T) (nguồn: /tin-tuc-bat-dong-san, /thuat-ngu-bat-dong-san)"
+  },
+  {
+   "id": "F-38",
+   "label": "Video nhà đất",
+   "type": "feature",
+   "desc": "Mục video trên menu (nguồn: /)"
+  },
+  {
+   "id": "F-39",
+   "label": "Đoán giá nhà đất",
+   "type": "feature",
+   "desc": "5 câu × 20s, 5 lượt/ngày, điểm theo sai lệch; Top 3 tháng nhận 200/100/50 points (≥1000 điểm) (nguồn: /doan-gia-nha-dat)"
+  },
+  {
+   "id": "F-40",
+   "label": "Tử vi & Phong thủy AI",
+   "type": "feature",
+   "desc": "Phong thuỷ theo mệnh/hướng, xem ngày, tarot, thần số học (nguồn: /tu-vi-phong-thuy)"
+  },
+  {
+   "id": "F-41",
+   "label": "Đăng nhập / tài khoản",
+   "type": "feature",
+   "desc": "Đăng nhập SĐT + OTP, hồ sơ, tin nhắn (nguồn: /register-agent, header)"
+  },
+  {
+   "id": "F-42",
+   "label": "Xoá tài khoản",
+   "type": "feature",
+   "desc": "3 bước trong app (nguồn: /huong-dan-xoa-tai-khoan)"
+  },
+  {
+   "id": "F-43",
+   "label": "Trợ giúp & phản ánh",
+   "type": "feature",
+   "desc": "Trung tâm trợ giúp, tiếp nhận phản ánh, cơ chế giải quyết tranh chấp (nguồn: /tro-giup, footer)"
+  },
+  {
+   "id": "F-44",
+   "label": "Ứng dụng mobile",
+   "type": "feature",
+   "desc": "iOS + Android (nguồn: /tai-ung-dung)"
+  },
+  {
+   "id": "F-45",
+   "label": "MCP server",
+   "type": "feature",
+   "desc": "Streamable HTTP, không cần auth; tools: search_listings, compare_listings, read_page, search_projects, search_agents, request_contact (nguồn: /.well-known/mcp.json)"
+  },
+  {
+   "id": "F-46",
+   "label": "Agent REST API",
+   "type": "feature",
+   "desc": "/api/agent/search, compare, projects, agents, contact; JSON/markdown; rate limit theo IP (nguồn: llms.txt)"
+  },
+  {
+   "id": "F-47",
+   "label": "Markdown content negotiation",
+   "type": "feature",
+   "desc": "`Accept: text/markdown` trên mọi trang, `/api/markdown?path=` (giảm ~97% token) (nguồn: llms.txt)"
+  },
+  {
+   "id": "F-48",
+   "label": "llms.txt / sitemap-ai / OpenAPI 3.1",
+   "type": "feature",
+   "desc": "Tài liệu cho LLM crawler (nguồn: /llms.txt)"
+  },
+  {
+   "id": "FR-01",
+   "label": "FR-01 Tìm kiếm & lọc tin đăng",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-02",
+   "label": "FR-02 Tìm kiếm bằng AI (ngôn ngữ tự nhiên)",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-03",
+   "label": "FR-03 Xem trên bản đồ",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-04",
+   "label": "FR-04 Chi tiết tin đăng",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-05",
+   "label": "FR-05 Tra cứu & so sánh dự án",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-06",
+   "label": "FR-06 Nguồn nhà đặc biệt (MOSO Signature)",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-07",
+   "label": "FR-07 Gửi yêu cầu xem nhà / tư vấn",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-08",
+   "label": "FR-08 Đăng tin với AI",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-09",
+   "label": "FR-09 Quản lý tin của tôi",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-10",
+   "label": "FR-10 Đẩy tin",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-11",
+   "label": "FR-11 Xoá watermark ảnh bằng AI",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-12",
+   "label": "FR-12 Ký gửi & nhà cần bán nhanh",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-13",
+   "label": "FR-13 Xác thực tin \"3 THẬT\"",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-14",
+   "label": "FR-14 Ẩn số nhà",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-15",
+   "label": "FR-15 Ví & giao dịch points",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-16",
+   "label": "FR-16 Kiếm points miễn phí",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-17",
+   "label": "FR-17 Đăng ký tài khoản môi giới",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-18",
+   "label": "FR-18 Danh bạ & MOSO Score",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-19",
+   "label": "FR-19 MOSO Partner",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-20",
+   "label": "FR-20 Khoá học chứng chỉ môi giới",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-21",
+   "label": "FR-21 Cộng tác viên giới thiệu",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-22",
+   "label": "FR-22 Đăng ký sự kiện Workshop",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-23",
+   "label": "FR-23 So sánh & đăng ký vay thế chấp",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-24",
+   "label": "FR-24 Bộ tính vay mua nhà",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-25",
+   "label": "FR-25 Định giá & cầm cố",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-34",
+   "label": "FR-34 Báo cáo thị trường",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-35",
+   "label": "FR-35 Tin tức, Wiki, thuật ngữ, video",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-36",
+   "label": "FR-36 Trò chơi đoán giá",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-37",
+   "label": "FR-37 Tử vi & phong thuỷ AI",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-43",
+   "label": "FR-43 MCP server",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-44",
+   "label": "FR-44 Agent REST API",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-45",
+   "label": "FR-45 Markdown & tài liệu cho LLM",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-26",
+   "label": "FR-26 Thuế & phí giao dịch",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-27",
+   "label": "FR-27 Bảng giá đất nhà nước",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-28",
+   "label": "FR-28 Chuyển mục đích SDĐ",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-29",
+   "label": "FR-29 Thuê hay mua",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-30",
+   "label": "FR-30 Lợi nhuận đầu tư",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-31",
+   "label": "FR-31 Hiệu quả đầu tư",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-32",
+   "label": "FR-32 Nên mua hay chờ",
+   "type": "requirement"
+  },
+  {
+   "id": "FR-33",
+   "label": "FR-33 Check quy hoạch",
+   "type": "requirement"
+  },
+  {
+   "id": "A1",
+   "label": "Người mua/thuê",
+   "type": "actor"
+  },
+  {
+   "id": "A2",
+   "label": "Chủ nhà (FSBO)",
+   "type": "actor"
+  },
+  {
+   "id": "A3",
+   "label": "Môi giới",
+   "type": "actor"
+  },
+  {
+   "id": "A4",
+   "label": "Doanh nghiệp / Sàn BĐS",
+   "type": "actor"
+  },
+  {
+   "id": "A5",
+   "label": "Cộng tác viên",
+   "type": "actor"
+  },
+  {
+   "id": "A6",
+   "label": "AI Agent bên thứ ba",
+   "type": "actor"
+  },
+  {
+   "id": "A7",
+   "label": "Admin / Chuyên viên MOSO",
+   "type": "actor"
+  },
+  {
+   "id": "I-Bank",
+   "label": "13+ ngân hàng đối tác",
+   "type": "integration"
+  },
+  {
+   "id": "I-IEM",
+   "label": "IEM — Viện Kinh tế & Quản lý",
+   "type": "integration"
+  },
+  {
+   "id": "I-Voucher",
+   "label": "Urbox / Gotit e-voucher",
+   "type": "integration"
+  },
+  {
+   "id": "I-AI",
+   "label": "LLM / Vision AI",
+   "type": "integration"
+  },
+  {
+   "id": "I-Maps",
+   "label": "Bản đồ số",
+   "type": "integration"
+  },
+  {
+   "id": "I-OTP",
+   "label": "SMS OTP (giả định)",
+   "type": "integration"
+  },
+  {
+   "id": "I-Pay",
+   "label": "Cổng thanh toán (giả định)",
+   "type": "integration"
+  },
+  {
+   "id": "I-Store",
+   "label": "App Store / Google Play",
+   "type": "integration"
+  }
+ ],
+ "edges": [
+  {
+   "from": "M1",
+   "to": "F-01",
+   "label": "contains"
+  },
+  {
+   "from": "M1",
+   "to": "F-02",
+   "label": "contains"
+  },
+  {
+   "from": "M1",
+   "to": "F-03",
+   "label": "contains"
+  },
+  {
+   "from": "M1",
+   "to": "F-04",
+   "label": "contains"
+  },
+  {
+   "from": "M1",
+   "to": "F-05",
+   "label": "contains"
+  },
+  {
+   "from": "M1",
+   "to": "F-06",
+   "label": "contains"
+  },
+  {
+   "from": "M1",
+   "to": "F-07",
+   "label": "contains"
+  },
+  {
+   "from": "M1",
+   "to": "F-08",
+   "label": "contains"
+  },
+  {
+   "from": "M1",
+   "to": "F-09",
+   "label": "contains"
+  },
+  {
+   "from": "M2",
+   "to": "F-10",
+   "label": "contains"
+  },
+  {
+   "from": "M2",
+   "to": "F-11",
+   "label": "contains"
+  },
+  {
+   "from": "M2",
+   "to": "F-12",
+   "label": "contains"
+  },
+  {
+   "from": "M2",
+   "to": "F-13",
+   "label": "contains"
+  },
+  {
+   "from": "M2",
+   "to": "F-14",
+   "label": "contains"
+  },
+  {
+   "from": "M3",
+   "to": "F-15",
+   "label": "contains"
+  },
+  {
+   "from": "M3",
+   "to": "F-16",
+   "label": "contains"
+  },
+  {
+   "from": "M4",
+   "to": "F-17",
+   "label": "contains"
+  },
+  {
+   "from": "M4",
+   "to": "F-18",
+   "label": "contains"
+  },
+  {
+   "from": "M5",
+   "to": "F-19",
+   "label": "contains"
+  },
+  {
+   "from": "M5",
+   "to": "F-20",
+   "label": "contains"
+  },
+  {
+   "from": "M5",
+   "to": "F-21",
+   "label": "contains"
+  },
+  {
+   "from": "M5",
+   "to": "F-22",
+   "label": "contains"
+  },
+  {
+   "from": "M5",
+   "to": "F-23",
+   "label": "contains"
+  },
+  {
+   "from": "M5",
+   "to": "F-24",
+   "label": "contains"
+  },
+  {
+   "from": "M6",
+   "to": "F-25",
+   "label": "contains"
+  },
+  {
+   "from": "M6",
+   "to": "F-26",
+   "label": "contains"
+  },
+  {
+   "from": "M6",
+   "to": "F-27",
+   "label": "contains"
+  },
+  {
+   "from": "M7",
+   "to": "F-28",
+   "label": "contains"
+  },
+  {
+   "from": "M7",
+   "to": "F-29",
+   "label": "contains"
+  },
+  {
+   "from": "M7",
+   "to": "F-30",
+   "label": "contains"
+  },
+  {
+   "from": "M7",
+   "to": "F-31",
+   "label": "contains"
+  },
+  {
+   "from": "M7",
+   "to": "F-32",
+   "label": "contains"
+  },
+  {
+   "from": "M7",
+   "to": "F-33",
+   "label": "contains"
+  },
+  {
+   "from": "M7",
+   "to": "F-34",
+   "label": "contains"
+  },
+  {
+   "from": "M7",
+   "to": "F-35",
+   "label": "contains"
+  },
+  {
+   "from": "M8",
+   "to": "F-36",
+   "label": "contains"
+  },
+  {
+   "from": "M8",
+   "to": "F-37",
+   "label": "contains"
+  },
+  {
+   "from": "M8",
+   "to": "F-38",
+   "label": "contains"
+  },
+  {
+   "from": "M9",
+   "to": "F-39",
+   "label": "contains"
+  },
+  {
+   "from": "M9",
+   "to": "F-40",
+   "label": "contains"
+  },
+  {
+   "from": "M10",
+   "to": "F-41",
+   "label": "contains"
+  },
+  {
+   "from": "M10",
+   "to": "F-42",
+   "label": "contains"
+  },
+  {
+   "from": "M10",
+   "to": "F-43",
+   "label": "contains"
+  },
+  {
+   "from": "M10",
+   "to": "F-44",
+   "label": "contains"
+  },
+  {
+   "from": "M11",
+   "to": "F-45",
+   "label": "contains"
+  },
+  {
+   "from": "M11",
+   "to": "F-46",
+   "label": "contains"
+  },
+  {
+   "from": "M11",
+   "to": "F-47",
+   "label": "contains"
+  },
+  {
+   "from": "M11",
+   "to": "F-48",
+   "label": "contains"
+  },
+  {
+   "from": "F-01",
+   "to": "FR-01",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-02",
+   "to": "FR-01",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-05",
+   "to": "FR-01",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-03",
+   "to": "FR-02",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-04",
+   "to": "FR-03",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-16",
+   "to": "FR-03",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-06",
+   "to": "FR-04",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-07",
+   "to": "FR-05",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-08",
+   "to": "FR-06",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-09",
+   "to": "FR-07",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-45",
+   "to": "FR-07",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-10",
+   "to": "FR-08",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-17",
+   "to": "FR-08",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-11",
+   "to": "FR-09",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-17",
+   "to": "FR-09",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-12",
+   "to": "FR-10",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-13",
+   "to": "FR-11",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-14",
+   "to": "FR-12",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-19",
+   "to": "FR-12",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-15",
+   "to": "FR-13",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-16",
+   "to": "FR-14",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-17",
+   "to": "FR-15",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-18",
+   "to": "FR-16",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-19",
+   "to": "FR-17",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-41",
+   "to": "FR-17",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-20",
+   "to": "FR-18",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-21",
+   "to": "FR-19",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-22",
+   "to": "FR-20",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-18",
+   "to": "FR-20",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-23",
+   "to": "FR-21",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-24",
+   "to": "FR-22",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-25",
+   "to": "FR-23",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-26",
+   "to": "FR-24",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-27",
+   "to": "FR-25",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-36",
+   "to": "FR-34",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-37",
+   "to": "FR-35",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-38",
+   "to": "FR-35",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-39",
+   "to": "FR-36",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-18",
+   "to": "FR-36",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-40",
+   "to": "FR-37",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-45",
+   "to": "FR-43",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-46",
+   "to": "FR-44",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-47",
+   "to": "FR-45",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-48",
+   "to": "FR-45",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-28",
+   "to": "FR-26",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-29",
+   "to": "FR-27",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-30",
+   "to": "FR-28",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-31",
+   "to": "FR-29",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-32",
+   "to": "FR-30",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-33",
+   "to": "FR-31",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-34",
+   "to": "FR-32",
+   "label": "specified_by"
+  },
+  {
+   "from": "F-35",
+   "to": "FR-33",
+   "label": "specified_by"
+  },
+  {
+   "from": "A1",
+   "to": "F-01",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-02",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-03",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-04",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-06",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-07",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-08",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-09",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-25",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-26",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-27",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-28",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-29",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-31",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-34",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-36",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-37",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-39",
+   "label": "uses"
+  },
+  {
+   "from": "A1",
+   "to": "F-40",
+   "label": "uses"
+  },
+  {
+   "from": "A2",
+   "to": "F-10",
+   "label": "uses"
+  },
+  {
+   "from": "A2",
+   "to": "F-11",
+   "label": "uses"
+  },
+  {
+   "from": "A2",
+   "to": "F-12",
+   "label": "uses"
+  },
+  {
+   "from": "A2",
+   "to": "F-13",
+   "label": "uses"
+  },
+  {
+   "from": "A2",
+   "to": "F-14",
+   "label": "uses"
+  },
+  {
+   "from": "A2",
+   "to": "F-15",
+   "label": "uses"
+  },
+  {
+   "from": "A2",
+   "to": "F-16",
+   "label": "uses"
+  },
+  {
+   "from": "A2",
+   "to": "F-17",
+   "label": "uses"
+  },
+  {
+   "from": "A3",
+   "to": "F-10",
+   "label": "uses"
+  },
+  {
+   "from": "A3",
+   "to": "F-11",
+   "label": "uses"
+  },
+  {
+   "from": "A3",
+   "to": "F-14",
+   "label": "uses"
+  },
+  {
+   "from": "A3",
+   "to": "F-16",
+   "label": "uses"
+  },
+  {
+   "from": "A3",
+   "to": "F-19",
+   "label": "uses"
+  },
+  {
+   "from": "A3",
+   "to": "F-20",
+   "label": "uses"
+  },
+  {
+   "from": "A3",
+   "to": "F-21",
+   "label": "uses"
+  },
+  {
+   "from": "A3",
+   "to": "F-22",
+   "label": "uses"
+  },
+  {
+   "from": "A3",
+   "to": "F-24",
+   "label": "uses"
+  },
+  {
+   "from": "A4",
+   "to": "F-21",
+   "label": "uses"
+  },
+  {
+   "from": "A5",
+   "to": "F-23",
+   "label": "uses"
+  },
+  {
+   "from": "A6",
+   "to": "F-45",
+   "label": "uses"
+  },
+  {
+   "from": "A6",
+   "to": "F-46",
+   "label": "uses"
+  },
+  {
+   "from": "A6",
+   "to": "F-47",
+   "label": "uses"
+  },
+  {
+   "from": "A6",
+   "to": "F-48",
+   "label": "uses"
+  },
+  {
+   "from": "A7",
+   "to": "F-09",
+   "label": "uses"
+  },
+  {
+   "from": "A7",
+   "to": "F-15",
+   "label": "uses"
+  },
+  {
+   "from": "A7",
+   "to": "F-19",
+   "label": "uses"
+  },
+  {
+   "from": "A7",
+   "to": "F-43",
+   "label": "uses"
+  },
+  {
+   "from": "F-08",
+   "to": "I-Bank",
+   "label": "calls"
+  },
+  {
+   "from": "F-25",
+   "to": "I-Bank",
+   "label": "calls"
+  },
+  {
+   "from": "F-27",
+   "to": "I-Bank",
+   "label": "calls"
+  },
+  {
+   "from": "F-22",
+   "to": "I-IEM",
+   "label": "calls"
+  },
+  {
+   "from": "F-23",
+   "to": "I-Voucher",
+   "label": "calls"
+  },
+  {
+   "from": "F-03",
+   "to": "I-AI",
+   "label": "calls"
+  },
+  {
+   "from": "F-10",
+   "to": "I-AI",
+   "label": "calls"
+  },
+  {
+   "from": "F-13",
+   "to": "I-AI",
+   "label": "calls"
+  },
+  {
+   "from": "F-36",
+   "to": "I-AI",
+   "label": "calls"
+  },
+  {
+   "from": "F-40",
+   "to": "I-AI",
+   "label": "calls"
+  },
+  {
+   "from": "F-04",
+   "to": "I-Maps",
+   "label": "calls"
+  },
+  {
+   "from": "F-19",
+   "to": "I-OTP",
+   "label": "calls"
+  },
+  {
+   "from": "F-41",
+   "to": "I-OTP",
+   "label": "calls"
+  },
+  {
+   "from": "F-17",
+   "to": "I-Pay",
+   "label": "calls"
+  },
+  {
+   "from": "F-44",
+   "to": "I-Store",
+   "label": "calls"
+  }
+ ]
+}
