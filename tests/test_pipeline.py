@@ -54,5 +54,17 @@ class TestWiki(unittest.TestCase):
         self.assertEqual(wiki.broken_links(d), ["index.md -> F-99"])
 
 
+class TestValidate(unittest.TestCase):
+    def test_check_srs_flags_missing_section_and_unknown_feature(self):
+        import validate
+        errs = validate.check_srs("## Functional Requirements\nFR-01 ... F-99", "F-01")
+        self.assertIn("missing section: Non-Functional Requirements", errs)
+        self.assertIn("unknown feature: F-99", errs)
+
+    def test_check_srs_ok_on_current_outputs(self):
+        import validate
+        self.assertEqual(validate.check_srs(Path("out/SRS.md").read_text(), Path("out/brief.md").read_text()), [])
+
+
 if __name__ == "__main__":
     unittest.main()
