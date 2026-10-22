@@ -51,11 +51,15 @@ def llm(prompt):
     return r.stdout.strip()
 
 
-def stage(name, prompt):
+def stage(name, prompt, run=llm):
     # Every stage caches to out/<name>; rerun resumes, and a human/agent can hand-edit any stage.
     f = OUT / name
     if not f.exists():
-        print(f"{name}..."); f.write_text(llm(prompt))
+        print(f"{name}...")
+        text = run(prompt).strip()
+        if not text:
+            sys.exit(f"stage {name}: LLM returned empty output, nothing cached")
+        f.write_text(text)
     return f.read_text()
 
 
