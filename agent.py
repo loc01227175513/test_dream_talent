@@ -4,35 +4,44 @@
 Usage: python3 agent.py https://moso.vn [max_pages]
 LLM = `claude -p` (Claude Code headless). Corpus is cached in out/corpus.md; delete to re-crawl.
 """
-import json, re, subprocess, sys, urllib.request
+import json, re, subprocess, sys, time, urllib.error, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
-SITE = sys.argv[1].rstrip("/") if len(sys.argv) > 1 else "https://moso.vn"
-MAX = int(sys.argv[2]) if len(sys.argv) > 2 else 60
 OUT = Path("out"); OUT.mkdir(exist_ok=True)
 
 
-def get(url):
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "planning-agent", "Accept": "text/markdown"})
-        return urllib.request.urlopen(req, timeout=20).read().decode("utf-8", "ignore")
-    except Exception as e:
-        return f"<!-- fetch failed {url}: {e} -->"
+def get(url, opener=urllib.request.urlopen, sleep=time.sleep):
+    req = urllib.request.Request(url, headers={"User-Agent": "planning-agent", "Accept": "text/markdown"})
+    for attempt in range(3):
+        try:
+            return opener(req, timeout=20).read().decode("utf-8", "ignore")
+        except urllib.error.HTTPError as e:
+            if e.code != 429 or attempt == 2:
+                raise RuntimeError(f"fetch failed {url}: {e}") from e
+            sleep(int(e.headers.get("Retry-After", 5)))
+        except OSError as e:  # URLError, timeouts
+            if attempt == 2:
+                raise RuntimeError(f"fetch failed {url}: {e}") from e
+            sleep(2)
 
 
-def crawl():
+def crawl(site, max_pages):
     # Understand-Anything "scan": prefer machine-readable sources (llms.txt, sitemap, markdown endpoint).
-    urls = re.findall(r"<loc>([^<]+)</loc>", get(f"{SITE}/sitemap-static.xml"))[:MAX] or [SITE]
+    urls = re.findall(r"<loc>([^<]+)</loc>", get(f"{site}/sitemap-static.xml"))[:max_pages] or [site]
     # ponytail: only static sitemap + 2k chars/page; per-listing crawl if listing-level detail needed
     def page(u):
-        path = u.replace(SITE, "") or "/"
-        md = get(f"{SITE}/api/markdown?path={path}")
+        path = u.replace(site, "") or "/"
+        try:
+            md = get(f"{site}/api/markdown?path={path}")
+        except RuntimeError as e:
+            print(f"skip {path}: {e}", file=sys.stderr)
+            return ""
         md = re.sub(r"\n{3,}", "\n\n", md)
         return f"\n\n=== PAGE {path} ===\n{md[:2000]}"
-    with ThreadPoolExecutor(8) as ex:
+    with ThreadPoolExecutor(4) as ex:  # /api/markdown allows 30 req/min/IP; 429s are retried
         pages = "".join(ex.map(page, urls))
-    return f"=== llms.txt ===\n{get(SITE + '/llms.txt')[:12000]}{pages}"
+    return f"=== llms.txt ===\n{get(site + '/llms.txt')[:12000]}{pages}"
 
 
 def llm(prompt):
@@ -82,9 +91,13 @@ net.on('click',p=>{const x=p.nodes[0]&&n.get(p.nodes[0]);if(x)i.innerHTML=`<b>${
 
 
 if __name__ == "__main__":
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    site = (args[0] if args else "https://moso.vn").rstrip("/")
     cache = OUT / "corpus.md"
     if not cache.exists():
-        cache.write_text(crawl())
+        cache.write_text(crawl(site, int(args[1]) if len(args) > 1 else 60))
+    if "--crawl-only" in sys.argv:
+        sys.exit()
     corpus = cache.read_text()
     brief = stage("brief.md", ANALYST.format(c=corpus))
     srs = stage("SRS.md", PM.format(b=brief))
